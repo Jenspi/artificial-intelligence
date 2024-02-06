@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.Random;
 
 import com.stephengware.java.games.chess.bot.Bot;
+import com.stephengware.java.games.chess.state.Board;
+import com.stephengware.java.games.chess.state.Piece;
+import com.stephengware.java.games.chess.state.Player;
 import com.stephengware.java.games.chess.state.State;
 
 /**
@@ -13,7 +16,7 @@ import com.stephengware.java.games.chess.state.State;
  * @author Stephen G. Ware
  */
 public class MyBot extends Bot {
-
+	private final String playername;
 	/** A random number generator */
 	private final Random random;
 	
@@ -23,6 +26,8 @@ public class MyBot extends Bot {
 	 */
 	public MyBot() {
 		super("jmspicer");
+		playername = "jmspicer";
+		//Change value for different outcomes
 		this.random = new Random(0);
 	}
 
@@ -49,6 +54,47 @@ public class MyBot extends Bot {
 		return children.get(random.nextInt(children.size()));
 	}
 	
+	protected int evaluateState(State state) {
+		/*
+		 * a function called ‘evaluateState()’ that takes
+		 * in a ‘State’ object as an argument and returns a number that measures ‘board
+		 * goodness’ for any given player, with higher scores being “more good.” A first pass of this
+		 * might just be returning the difference in material scores (e.g., my perception of how
+		 * good this state is would be *my material score* minus *your material score*).
+		 * 
+		 * You write it from “your perspective” – so if YOU are doing better than your
+		 * enemy (regardless of what color you are), then it returns a high score, and if you
+		 * are losing, then it returns a low score. If you do it this way, then “high numbers
+		 * are always good” for you, but you need to pay attention to who is the owner of
+		 * each piece as it will change from game to game (i.e., sometimes the white pieces
+		 * are yours, and sometimes the black pieces are yours).
+		 */
+
+		// Material scores:
+		int pawn=1, knight=3, bishop=3, rook=5, queen=9;
+		int materialScore_W=0, materialScore_B=0;
+		if(state.player.equals(playername)) {
+			//could also do one large switch statement checking if piece is black/white and adding to their own variables?
+			//then check if im black or white, and check who is winning/losing
+			// solution not done ^^^
+			// board API file:///Users/jenspi/src/artificial-intelligence/Jenny's%20Assisted%20Chess%20Bot/doc/com/stephengware/java/games/chess/state/Board.html
+			//go through all pieces
+			for(int i=0; i< BLACK.countPieces(playername); i++) {
+				for(Piece p : Board.countPieces(Player.BLACK)) {
+					//switch statement for each piece, adding to material score for each one present
+					//Piece.equals(Knight)
+					
+				}
+			}
+		}
+		else {
+			
+		}
+		//stubbed
+		//return my score minus yours
+		return 0;
+	}
+	
 	protected State greedyStrategy(State root) {
 		/*
 		 * Modeled after greedy bot:
@@ -61,7 +107,7 @@ public class MyBot extends Bot {
 		// Material scores:
 		int pawn=1, knight=3, bishop=3, rook=5, queen=9;
 		
-		// This list will hold all the children nodes of the root.
+		// This list will hold all the fronteir children nodes of the root.
 		ArrayList<State> children = new ArrayList<>();
 		
 		//Generate all children nodes of root (no more than 500k) and store them in list
