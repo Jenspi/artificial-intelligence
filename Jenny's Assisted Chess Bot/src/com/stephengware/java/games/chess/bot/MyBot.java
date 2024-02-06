@@ -6,6 +6,9 @@ import java.util.Random;
 
 import com.stephengware.java.games.chess.bot.Bot;
 import com.stephengware.java.games.chess.state.Board;
+import com.stephengware.java.games.chess.state.King;
+import com.stephengware.java.games.chess.state.Knight;
+import com.stephengware.java.games.chess.state.Pawn;
 import com.stephengware.java.games.chess.state.Piece;
 import com.stephengware.java.games.chess.state.Player;
 import com.stephengware.java.games.chess.state.State;
@@ -51,6 +54,7 @@ public class MyBot extends Bot {
 		
 		ArrayList<State> children = new ArrayList<>();
 		// Choose one of the children at random.
+		
 		return children.get(random.nextInt(children.size()));
 	}
 	
@@ -72,23 +76,33 @@ public class MyBot extends Bot {
 
 		// Material scores:
 		int pawn=1, knight=3, bishop=3, rook=5, queen=9;
-		int materialScore_W=0, materialScore_B=0;
+		int materialScore_Me=0, materialScore_Bot=0;
 		if(state.player.equals(playername)) {
 			//could also do one large switch statement checking if piece is black/white and adding to their own variables?
 			//then check if im black or white, and check who is winning/losing
 			// solution not done ^^^
 			// board API file:///Users/jenspi/src/artificial-intelligence/Jenny's%20Assisted%20Chess%20Bot/doc/com/stephengware/java/games/chess/state/Board.html
 			//go through all pieces
-			for(int i=0; i< BLACK.countPieces(playername); i++) {
-				for(Piece p : Board.countPieces(Player.BLACK)) {
-					//switch statement for each piece, adding to material score for each one present
-					//Piece.equals(Knight)
-					
+			for(int i=0; i< state.Board.countPieces(playername); i++) {
+				//switch statement for each piece, adding to material score for each one present
+				//Piece.equals(Knight)
+				Iterator<State> iterator = state.next().iterator();
+				while(!state.searchLimitReached() && iterator.hasNext()) {
+					if(iterator.next().equals(new Pawn(null, i, i))) {
+						materialScore_Me += pawn;
+					}
+					else if(iterator.next().equals(new Knight(null, i, i))) {
+						materialScore_Me += knight;	
+					}
+					else {
+						//...
+					}
 				}
+					
 			}
 		}
 		else {
-			
+			//...
 		}
 		//stubbed
 		//return my score minus yours
