@@ -42,19 +42,21 @@ public class MyBot extends Bot {
 		 * current board configuration. Thus returning one of these child states is essentially
 		 * expressing which move you want to make.
 		 */
-//		// This list will hold all the children nodes of the root.
-//		ArrayList<State> children = new ArrayList<>();
-//		
-//		// Generate all the children nodes of the root (that is, all the
-//		// possible next states of the game.  Make sure that we do not exceed
-//		// the number of GameTree nodes that we are allowed to generate... 500,000 for this assignment.
-//		Iterator<State> iterator = root.next().iterator();
-//		while(!root.searchLimitReached() && iterator.hasNext())
-//			children.add(iterator.next());
-		
+		// This list will hold all the children nodes of the root.
 		ArrayList<State> children = new ArrayList<>();
-		// Choose one of the children at random.
 		
+		// Generate all the children nodes of the root (that is, all the
+		// possible next states of the game.  Make sure that we do not exceed
+		// the number of GameTree nodes that we are allowed to generate... 500,000 for this assignment.
+		Iterator<State> iterator = root.next().iterator();
+		while(!root.searchLimitReached() && iterator.hasNext())
+			children.add(iterator.next());
+		
+//		ArrayList<State> children = new ArrayList<>();
+		// Choose one of the children at random.
+		System.out.println("\nPlayer: "+root.player);//gets my color; shows only my ply per turn
+//		System.out.println("white Player: "+Player.BLACK.other());
+//		System.out.println("White Player: "+Player.WHITE);
 		return children.get(random.nextInt(children.size()));
 	}
 	
@@ -77,33 +79,33 @@ public class MyBot extends Bot {
 		// Material scores:
 		int pawn=1, knight=3, bishop=3, rook=5, queen=9;
 		int materialScore_Me=0, materialScore_Bot=0;
-		if(state.player.equals(playername)) {
-			//could also do one large switch statement checking if piece is black/white and adding to their own variables?
-			//then check if im black or white, and check who is winning/losing
-			// solution not done ^^^
-			// board API file:///Users/jenspi/src/artificial-intelligence/Jenny's%20Assisted%20Chess%20Bot/doc/com/stephengware/java/games/chess/state/Board.html
-			//go through all pieces
-			for(int i=0; i< state.Board.countPieces(playername); i++) {
-				//switch statement for each piece, adding to material score for each one present
-				//Piece.equals(Knight)
-				Iterator<State> iterator = state.next().iterator();
-				while(!state.searchLimitReached() && iterator.hasNext()) {
-					if(iterator.next().equals(new Pawn(null, i, i))) {
-						materialScore_Me += pawn;
-					}
-					else if(iterator.next().equals(new Knight(null, i, i))) {
-						materialScore_Me += knight;	
-					}
-					else {
-						//...
-					}
-				}
-					
-			}
-		}
-		else {
-			//...
-		}
+//		if(state.player.equals(playername)) {
+//			//could also do one large switch statement checking if piece is black/white and adding to their own variables?
+//			//then check if im black or white, and check who is winning/losing
+//			// solution not done ^^^
+//			// board API file:///Users/jenspi/src/artificial-intelligence/Jenny's%20Assisted%20Chess%20Bot/doc/com/stephengware/java/games/chess/state/Board.html
+//			//go through all pieces
+//			for(int i=0; i< state.Board.countPieces(playername); i++) {
+//				//switch statement for each piece, adding to material score for each one present
+//				//Piece.equals(Knight)
+//				Iterator<State> iterator = state.next().iterator();
+//				while(!state.searchLimitReached() && iterator.hasNext()) {
+//					if(iterator.next().equals(new Pawn(null, i, i))) {
+//						materialScore_Me += pawn;
+//					}
+//					else if(iterator.next().equals(new Knight(null, i, i))) {
+//						materialScore_Me += knight;
+//					}
+//					else {
+//						//...
+//					}
+//				}
+//					
+//			}
+//		}
+//		else {
+//			//...
+//		}
 		//stubbed
 		//return my score minus yours
 		return 0;
