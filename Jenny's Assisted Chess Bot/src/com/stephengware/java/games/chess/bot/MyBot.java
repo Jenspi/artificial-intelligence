@@ -1,6 +1,7 @@
 package com.stephengware.java.games.chess.bot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -52,11 +53,17 @@ public class MyBot extends Bot {
 		while(!root.searchLimitReached() && iterator.hasNext())
 			children.add(iterator.next());
 		
+//		Iterator<Piece> iterator2 = root.board.iterator();
+//		while(!root.searchLimitReached() && iterator.hasNext()) {
+//			System.out.println("ITER TO STRING: "+iterator2.next().toString());}
+//		
 //		ArrayList<State> children = new ArrayList<>();
 		// Choose one of the children at random.
 		System.out.println("\nPlayer: "+root.player);//gets my color; shows only my ply per turn
-//		System.out.println("white Player: "+Player.BLACK.other());
-//		System.out.println("White Player: "+Player.WHITE);
+		System.out.println("white Player: "+Player.BLACK.other());
+		System.out.println("Black Player: "+Player.BLACK);
+		System.out.println("White Player: "+Player.WHITE);
+		evaluateState(root);
 		return children.get(random.nextInt(children.size()));
 	}
 	
@@ -78,36 +85,72 @@ public class MyBot extends Bot {
 
 		// Material scores:
 		int pawn=1, knight=3, bishop=3, rook=5, queen=9;
-		int materialScore_Me=0, materialScore_Bot=0;
-//		if(state.player.equals(playername)) {
-//			//could also do one large switch statement checking if piece is black/white and adding to their own variables?
-//			//then check if im black or white, and check who is winning/losing
-//			// solution not done ^^^
-//			// board API file:///Users/jenspi/src/artificial-intelligence/Jenny's%20Assisted%20Chess%20Bot/doc/com/stephengware/java/games/chess/state/Board.html
-//			//go through all pieces
-//			for(int i=0; i< state.Board.countPieces(playername); i++) {
-//				//switch statement for each piece, adding to material score for each one present
-//				//Piece.equals(Knight)
-//				Iterator<State> iterator = state.next().iterator();
-//				while(!state.searchLimitReached() && iterator.hasNext()) {
-//					if(iterator.next().equals(new Pawn(null, i, i))) {
-//						materialScore_Me += pawn;
+		int MSBlack=0, MSWhite=0;
+		String color;
+//		HashMap<Integer, Player> botsMap = new HashMap<>();
+		
+		//determine color of pieces
+		//add scores to corresponding variables
+		//find out which color i am at the end
+		//use that in an if-else statement for final util score
+		if(state.player.equals(Player.BLACK)) {//dont need if we're gonna have a switch for both colors
+			//need this so we can determine which color we get assigned
+			//System.out.println("Player is assigned Black this game.");
+			
+		}
+		else if(state.player.equals(Player.WHITE)) {
+			//System.out.println("Player is assigned White this game.");
+		}
+			
+			//could also do one large switch statement checking if piece is black/white and adding to their own variables?
+			//then check if im black or white, and check who is winning/losing
+			// solution not done ^^^
+			// board API file:///Users/jenspi/src/artificial-intelligence/Jenny's%20Assisted%20Chess%20Bot/doc/com/stephengware/java/games/chess/state/Board.html
+			//go through all pieces
+			//////for(int i=0; i< state.Board.countPieces(playername); i++) {
+				//switch statement for each piece, adding to material score for each one present
+				//Piece.equals(Knight)
+				Iterator<Piece> iterator3 = state.board.iterator();
+				System.out.println("\nEvaluate state debugging...");
+				while(!state.searchLimitReached() && iterator3.hasNext()) {
+					Piece i = iterator3.next();
+					//check color
+//					if(Player.BLACK) {
+//						
 //					}
-//					else if(iterator.next().equals(new Knight(null, i, i))) {
-//						materialScore_Me += knight;
-//					}
-//					else {
-//						//...
-//					}
-//				}
 //					
-//			}
-//		}
+//					
+//					//check pieces
+//					System.out.println("Current Piece Class: "+ i.getClass());
+//					//prints something like     class com.stephengware.java.games.chess.state.Knight
+//					//if(i.getClass().){
+//						
+//					//}
+//					
+//					//switch(i.toString()) {
+//					if(i instanceof Pawn) {
+//						materialScore_Me += pawn;
+//					case (i.equals(new Pawn(null, i, i))):
+//						
+//					default:
+//						materialScore_Me +=999999;
+//					}//end 
+					
+					color = i.toString(); 
+					
+						//System.out.println("White: "+i);
+						System.out.println("i.player: "+i.player);
+					
+					
+				}//end while loop
+					
+			//}//end if for if(state.player.equals(playername))
 //		else {
 //			//...
-//		}
+//		}//end if-else statement for if(state.player.equals(playername))
 		//stubbed
 		//return my score minus yours
+				//return materialScore_Me - materialScore_Bot;
 		return 0;
 	}
 	
@@ -123,11 +166,11 @@ public class MyBot extends Bot {
 		// Material scores:
 		int pawn=1, knight=3, bishop=3, rook=5, queen=9;
 		
-		// This list will hold all the fronteir children nodes of the root.
+		// This list will hold all the frontier children nodes of the root.
 		ArrayList<State> children = new ArrayList<>();
 		
 		//Generate all children nodes of root (no more than 500k) and store them in list
-		//root.setSearchLimit(500000);
+		//root.setSearchLimit(500000);//not really needed because this approach doesn't look ahead
 		Iterator<State> iterator = root.next().iterator();
 		while(!root.searchLimitReached() && iterator.hasNext()) {
 			children.add(iterator.next());
