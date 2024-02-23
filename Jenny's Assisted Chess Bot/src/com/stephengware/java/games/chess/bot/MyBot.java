@@ -6,12 +6,15 @@ import java.util.Iterator;
 import java.util.Random;
 
 import com.stephengware.java.games.chess.bot.Bot;
+import com.stephengware.java.games.chess.state.Bishop;
 import com.stephengware.java.games.chess.state.Board;
 import com.stephengware.java.games.chess.state.King;
 import com.stephengware.java.games.chess.state.Knight;
 import com.stephengware.java.games.chess.state.Pawn;
 import com.stephengware.java.games.chess.state.Piece;
 import com.stephengware.java.games.chess.state.Player;
+import com.stephengware.java.games.chess.state.Queen;
+import com.stephengware.java.games.chess.state.Rook;
 import com.stephengware.java.games.chess.state.State;
 
 /**
@@ -59,10 +62,15 @@ public class MyBot extends Bot {
 //		
 //		ArrayList<State> children = new ArrayList<>();
 		// Choose one of the children at random.
+		
+		
+		/*
+		//debugging/getting player colors:
 		System.out.println("\nPlayer: "+root.player);//gets my color; shows only my ply per turn
 		System.out.println("white Player: "+Player.BLACK.other());
 		System.out.println("Black Player: "+Player.BLACK);
-		System.out.println("White Player: "+Player.WHITE);
+		System.out.println("White Player: "+Player.WHITE);*/
+		
 		evaluateState(root);
 		return children.get(random.nextInt(children.size()));
 	}
@@ -86,20 +94,29 @@ public class MyBot extends Bot {
 		// Material scores:
 		int pawn=1, knight=3, bishop=3, rook=5, queen=9;
 		int MSBlack=0, MSWhite=0;
-		String color;
+		boolean isBlack;
 //		HashMap<Integer, Player> botsMap = new HashMap<>();
 		
 		//determine color of pieces
 		//add scores to corresponding variables
 		//find out which color i am at the end
 		//use that in an if-else statement for final util score
-		if(state.player.equals(Player.BLACK)) {//dont need if we're gonna have a switch for both colors
-			//need this so we can determine which color we get assigned
-			//System.out.println("Player is assigned Black this game.");
+		
+		
+		// check what color we are assigned this game (changes game to game).
+		if(state.player.equals(Player.BLACK)) {//might not  need if we're gonna have a switch for both colors
+			// Player => Black
+			isBlack = true;// used for determining util score later
+			//have an iterator for all black pieces, assign to MSBLACK
+			//System.out.println("Player is assigned Black this game.");//debugging
 			
 		}
-		else if(state.player.equals(Player.WHITE)) {
-			//System.out.println("Player is assigned White this game.");
+		//else if(state.player.equals(Player.WHITE)) {
+		else{
+			// Player => White
+			isBlack = false;// used for determining util score later
+			//System.out.println("Player is assigned White this game.");//debugging
+			
 		}
 			
 			//could also do one large switch statement checking if piece is black/white and adding to their own variables?
@@ -111,48 +128,82 @@ public class MyBot extends Bot {
 				//switch statement for each piece, adding to material score for each one present
 				//Piece.equals(Knight)
 				Iterator<Piece> iterator3 = state.board.iterator();
-				System.out.println("\nEvaluate state debugging...");
+//				System.out.println("\nEvaluate state debugging while loop starting...");//debugging
+//				int tempCounter = 0;//debugging
+//				int total = 0;//debugging
 				while(!state.searchLimitReached() && iterator3.hasNext()) {
+//					tempCounter++;//debugging
+					// i will return all pieces on the board, regardless of color/player
+					// We can then use i.player.equals(color) to determine which piece belongs to which player
 					Piece i = iterator3.next();
-					//check color
-//					if(Player.BLACK) {
-//						
-//					}
-//					
-//					
-//					//check pieces
-//					System.out.println("Current Piece Class: "+ i.getClass());
-//					//prints something like     class com.stephengware.java.games.chess.state.Knight
-//					//if(i.getClass().){
-//						
-//					//}
-//					
-//					//switch(i.toString()) {
-//					if(i instanceof Pawn) {
-//						materialScore_Me += pawn;
-//					case (i.equals(new Pawn(null, i, i))):
-//						
-//					default:
-//						materialScore_Me +=999999;
-//					}//end 
 					
-					color = i.toString(); 
+					//Check what pieces belong to who, then add to appropriate material scores
+					if(i.player.equals(Player.BLACK)) {
+						//System.out.printf("PIECE %d: %s is BLACK\n", tempCounter, i);// debugging
+						// PIECE BELONGS TO BLACK HERE
+						if(i instanceof Pawn) {
+							MSBlack += pawn;
+						}
+						else if(i instanceof Knight) {
+							MSBlack += knight;
+						}
+						else if(i instanceof Bishop) {
+							MSBlack += bishop;
+						}
+						else if(i instanceof Rook) {
+							MSBlack += rook;
+						}
+						else if(i instanceof Queen) {
+							MSBlack += queen;
+						}
+						else {
+							//debugging... should only hit if black has no pieces on board
+							System.out.println("no if's entered for black");
+						}
+					}//end Black case
+					else {
+						//System.out.printf("PIECE %d: %s is WHITE\n", tempCounter, i);// debugging
+						// PIECE BELONGS TO WHITE HERE
+						if(i instanceof Pawn) {
+							MSWhite += pawn;
+						}
+						else if(i instanceof Knight) {
+							MSWhite += knight;
+						}
+						else if(i instanceof Bishop) {
+							MSWhite += bishop;
+						}
+						else if(i instanceof Rook) {
+							MSWhite += rook;
+						}
+						else if(i instanceof Queen) {
+							MSWhite += queen;
+						}
+						else {
+							//debugging... should only hit if white has no pieces on board
+							System.out.println("no if's entered for white");
+						}
+					}//end White case
+//					System.out.println("New black mat score:"+MSBlack);//debugging
+//					System.out.println("New white mat score:"+MSWhite);//debugging
 					
-						//System.out.println("White: "+i);
-						System.out.println("i.player: "+i.player);
-					
-					
+//					total++;//debugging
 				}//end while loop
+//				System.out.println("Should have this number of pieces: "+ total);//debugging
+//				System.out.println("\nEvaluate state debugging while loop DONE.");//debugging
 					
-			//}//end if for if(state.player.equals(playername))
-//		else {
-//			//...
-//		}//end if-else statement for if(state.player.equals(playername))
-		//stubbed
-		//return my score minus yours
-				//return materialScore_Me - materialScore_Bot;
-		return 0;
-	}
+		// Determine & return utility score
+		if(isBlack) {
+			// We are black, bot is white
+			System.out.println("util score: "+ (MSBlack - MSWhite));//debugging
+			return MSBlack - MSWhite;
+		}
+		else {
+			// We are black, bot is white
+			System.out.println("util score: "+ (MSWhite- MSBlack));//debugging
+			return MSWhite - MSBlack;
+		}
+	}//end evaluateState method
 	
 	protected State greedyStrategy(State root) {
 		/*
