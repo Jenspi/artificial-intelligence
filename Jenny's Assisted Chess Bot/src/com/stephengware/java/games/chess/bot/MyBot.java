@@ -129,63 +129,109 @@ public class MyBot extends Bot {
 				//Piece.equals(Knight)
 				Iterator<Piece> iterator3 = state.board.iterator();
 //				System.out.println("\nEvaluate state debugging while loop starting...");//debugging
-//				int tempCounter = 0;//debugging
+				int tempCounter = 0;//debugging
 //				int total = 0;//debugging
 				while(!state.searchLimitReached() && iterator3.hasNext()) {
-//					tempCounter++;//debugging
+					tempCounter++;//debugging
 					// i will return all pieces on the board, regardless of color/player
 					// We can then use i.player.equals(color) to determine which piece belongs to which player
 					Piece i = iterator3.next();
 					
 					//Check what pieces belong to who, then add to appropriate material scores
+//					System.out.println("i: "+i);
+//					System.out.println("i.player: "+i.player);
+//					System.out.println("i.player: "+i.player);
 					if(i.player.equals(Player.BLACK)) {
-						//System.out.printf("PIECE %d: %s is BLACK\n", tempCounter, i);// debugging
+//						System.out.printf("PIECE %d: %s is BLACK\n", tempCounter, i);// debugging
+						//System.out.printf("PIECE %d: %s is BLACK\n and a %s", tempCounter, i, (i.getClass()));// debugging
 						// PIECE BELONGS TO BLACK HERE
-						if(i instanceof Pawn) {
-							MSBlack += pawn;
+						switch(i.toString().toUpperCase()) {
+							case "P":
+								MSBlack += pawn;
+								break;
+							case "K":
+								MSBlack += knight;
+								break;
+							case "B":
+								MSBlack += bishop;
+								break;
+							case "R":
+								MSBlack += rook;
+								break;
+							case "Q":
+								MSBlack += queen;
+								break;
+							default:
+								//debugging... should only hit if black has no pieces on board
+								System.out.println("no if's entered for black");
+								break;
 						}
-						else if(i instanceof Knight) {
-							MSBlack += knight;
-						}
-						else if(i instanceof Bishop) {
-							MSBlack += bishop;
-						}
-						else if(i instanceof Rook) {
-							MSBlack += rook;
-						}
-						else if(i instanceof Queen) {
-							MSBlack += queen;
-						}
-						else {
-							//debugging... should only hit if black has no pieces on board
-							System.out.println("no if's entered for black");
-						}
+////						if(i instanceof Pawn) {
+////							MSBlack += pawn;
+////						}
+////						else if(i instanceof Knight) {
+////							MSBlack += knight;
+////						}
+//						else if(i instanceof Bishop) {
+//							MSBlack += bishop;
+//						}
+//						else if(i instanceof Rook) {
+//							MSBlack += rook;
+//						}
+//						else if(i instanceof Queen) {
+//							MSBlack += queen;
+//						}
+//						else {
+//							//debugging... should only hit if black has no pieces on board
+//							System.out.println("no if's entered for black");
+//						}
 					}//end Black case
 					else {
-						//System.out.printf("PIECE %d: %s is WHITE\n", tempCounter, i);// debugging
+//						System.out.printf("PIECE %d: %s is WHITE\n", tempCounter, i);// debugging
 						// PIECE BELONGS TO WHITE HERE
-						if(i instanceof Pawn) {
+//						if(i instanceof Pawn) {
+//							MSWhite += pawn;
+//						}
+//						else if(i instanceof Knight) {
+//							MSWhite += knight;
+//						}
+//						else if(i instanceof Bishop) {
+//							MSWhite += bishop;
+//						}
+//						else if(i instanceof Rook) {
+//							MSWhite += rook;
+//						}
+//						else if(i instanceof Queen) {
+//							MSWhite += queen;
+//						}
+//						else {
+//							//debugging... should only hit if white has no pieces on board
+//							System.out.println("no if's entered for white");
+//						}
+						switch(i.toString().toUpperCase()) {
+						case "P":
 							MSWhite += pawn;
-						}
-						else if(i instanceof Knight) {
+							break;
+						case "K":
 							MSWhite += knight;
-						}
-						else if(i instanceof Bishop) {
+							break;
+						case "B":
 							MSWhite += bishop;
-						}
-						else if(i instanceof Rook) {
+							break;
+						case "R":
 							MSWhite += rook;
-						}
-						else if(i instanceof Queen) {
+							break;
+						case "Q":
 							MSWhite += queen;
-						}
-						else {
-							//debugging... should only hit if white has no pieces on board
-							System.out.println("no if's entered for white");
-						}
+							break;
+						default:
+							//debugging... should only hit if black has no pieces on board
+							System.out.println("no if's entered for black");
+							break;
+					}
 					}//end White case
-//					System.out.println("New black mat score:"+MSBlack);//debugging
-//					System.out.println("New white mat score:"+MSWhite);//debugging
+					System.out.println("New black mat score:"+MSBlack);//debugging
+					System.out.println("New white mat score:"+MSWhite);//debugging
 					
 //					total++;//debugging
 				}//end while loop
