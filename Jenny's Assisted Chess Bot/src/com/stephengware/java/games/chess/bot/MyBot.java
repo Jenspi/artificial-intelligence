@@ -92,7 +92,7 @@ public class MyBot extends Bot {
 		 */
 
 		// Material scores:
-		int pawn=1, knight=3, bishop=3, rook=5, queen=9;
+		int pawn=1, knight=3, bishop=3, rook=5, queen=9, king=0;
 		int MSBlack=0, MSWhite=0;
 		boolean isBlack;
 //		HashMap<Integer, Player> botsMap = new HashMap<>();
@@ -230,14 +230,17 @@ public class MyBot extends Bot {
 							break;
 					}
 					}//end White case
-					System.out.println("New black mat score:"+MSBlack);//debugging
-					System.out.println("New white mat score:"+MSWhite);//debugging
-					
+//					System.out.println("New black mat score:"+MSBlack);//debugging
+//					System.out.println("New white mat score:"+MSWhite);//debugging
+//					
 //					total++;//debugging
 				}//end while loop
 //				System.out.println("Should have this number of pieces: "+ total);//debugging
 //				System.out.println("\nEvaluate state debugging while loop DONE.");//debugging
-					
+				
+				System.out.println("New black mat score:"+MSBlack);//debugging
+				System.out.println("New white mat score:"+MSWhite);//debugging
+				
 		// Determine & return utility score
 		if(isBlack) {
 			// We are black, bot is white
@@ -261,7 +264,7 @@ public class MyBot extends Bot {
 		 */
 		
 		// Material scores:
-		int pawn=1, knight=3, bishop=3, rook=5, queen=9;
+		int pawn=1, knight=3, bishop=3, rook=5, queen=9, king=0;
 		
 		// This list will hold all the frontier children nodes of the root.
 		ArrayList<State> children = new ArrayList<>();
