@@ -48,6 +48,12 @@ public class MyBot extends Bot {
 		 * current board configuration. Thus returning one of these child states is essentially
 		 * expressing which move you want to make.
 		 */
+//		try {
+//			Thread.sleep(500);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		// This list will hold all the children nodes of the root.
 		ArrayList<State> children = new ArrayList<>();
 		
@@ -66,12 +72,12 @@ public class MyBot extends Bot {
 		// Choose one of the children at random.
 		
 		
-		/*
-		//debugging/getting player colors:
-		System.out.println("\nPlayer: "+root.player);//gets my color; shows only my ply per turn
-		System.out.println("white Player: "+Player.BLACK.other());
-		System.out.println("Black Player: "+Player.BLACK);
-		System.out.println("White Player: "+Player.WHITE);*/
+		
+//		//debugging/getting player colors:
+		System.out.println("\nUs: "+root.player);//gets my color; shows only my ply per turn
+//		System.out.println("white Player: "+Player.BLACK.other());
+//		System.out.println("Black Player: "+Player.BLACK);
+//		System.out.println("White Player: "+Player.WHITE);
 		
 		//evaluateState(root);
 		//return children.get(random.nextInt(children.size()));
@@ -95,7 +101,8 @@ public class MyBot extends Bot {
 		 */
 
 		// Material scores:
-		int pawn=1, knight=3, bishop=3, rook=5, queen=9, king=0;
+		int pawn=1, knight=3, bishop=3, rook=5, queen=9, king=4;
+		int gameoverpts = 100;
 		int MSBlack=0, MSWhite=0;
 		boolean isBlack;
 //		HashMap<Integer, Player> botsMap = new HashMap<>();
@@ -107,20 +114,36 @@ public class MyBot extends Bot {
 		
 		
 		// check what color we are assigned this game (changes game to game).
+		//if(state.player.equals(Player.BLACK)) {//might not  need if we're gonna have a switch for both colors
 		if(state.player.equals(Player.BLACK)) {//might not  need if we're gonna have a switch for both colors
 			// Player => Black
-			isBlack = true;// used for determining util score later
+			isBlack = false;// used for determining util score later
 			//have an iterator for all black pieces, assign to MSBLACK
 			//System.out.println("Player is assigned Black this game.");//debugging
+			//if the opponents king is available to put in check, award +100 points
+			if(state.check) {
+				if(state.over) {
+					MSWhite += gameoverpts;
+				}
+				MSWhite += king;
+			}
+			
 			
 		}
 		//else if(state.player.equals(Player.WHITE)) {
 		else{
 			// Player => White
-			isBlack = false;// used for determining util score later
+			isBlack = true;// used for determining util score later
 			//System.out.println("Player is assigned White this game.");//debugging
+			if(state.check) {
+				if(state.over) {
+					MSBlack += gameoverpts;
+				}
+				MSBlack += king;
+			}
 			
 		}
+		System.out.println("COLOR: " + state.player);
 			
 			//could also do one large switch statement checking if piece is black/white and adding to their own variables?
 			//then check if im black or white, and check who is winning/losing
@@ -135,7 +158,7 @@ public class MyBot extends Bot {
 				int tempCounter = 0;//debugging
 //				int total = 0;//debugging
 				while(!state.searchLimitReached() && iterator3.hasNext()) {
-					tempCounter++;//debugging
+//					tempCounter++;//debugging
 					// i will return all pieces on the board, regardless of color/player
 					// We can then use i.player.equals(color) to determine which piece belongs to which player
 					Piece i = iterator3.next();
@@ -144,6 +167,9 @@ public class MyBot extends Bot {
 //					System.out.println("i: "+i);
 //					System.out.println("i.player: "+i.player);
 //					System.out.println("i.player: "+i.player);
+					
+					
+					
 					if(i.player.equals(Player.BLACK)) {
 //						System.out.printf("PIECE %d: %s is BLACK\n", tempCounter, i);// debugging
 						//System.out.printf("PIECE %d: %s is BLACK\n and a %s", tempCounter, i, (i.getClass()));// debugging
@@ -166,51 +192,11 @@ public class MyBot extends Bot {
 								break;
 							default:
 								//debugging... should only hit if black has no pieces on board
-								System.out.println("no if's entered for black");
+								//System.out.println("no if's entered for black");
 								break;
 						}
-////						if(i instanceof Pawn) {
-////							MSBlack += pawn;
-////						}
-////						else if(i instanceof Knight) {
-////							MSBlack += knight;
-////						}
-//						else if(i instanceof Bishop) {
-//							MSBlack += bishop;
-//						}
-//						else if(i instanceof Rook) {
-//							MSBlack += rook;
-//						}
-//						else if(i instanceof Queen) {
-//							MSBlack += queen;
-//						}
-//						else {
-//							//debugging... should only hit if black has no pieces on board
-//							System.out.println("no if's entered for black");
-//						}
 					}//end Black case
 					else {
-//						System.out.printf("PIECE %d: %s is WHITE\n", tempCounter, i);// debugging
-						// PIECE BELONGS TO WHITE HERE
-//						if(i instanceof Pawn) {
-//							MSWhite += pawn;
-//						}
-//						else if(i instanceof Knight) {
-//							MSWhite += knight;
-//						}
-//						else if(i instanceof Bishop) {
-//							MSWhite += bishop;
-//						}
-//						else if(i instanceof Rook) {
-//							MSWhite += rook;
-//						}
-//						else if(i instanceof Queen) {
-//							MSWhite += queen;
-//						}
-//						else {
-//							//debugging... should only hit if white has no pieces on board
-//							System.out.println("no if's entered for white");
-//						}
 						switch(i.toString().toUpperCase()) {
 						case "P":
 							MSWhite += pawn;
@@ -229,7 +215,7 @@ public class MyBot extends Bot {
 							break;
 						default:
 							//debugging... should only hit if black has no pieces on board
-							System.out.println("no if's entered for black");
+							//System.out.println("no if's entered for black");
 							break;
 						}
 					}//end White case
@@ -241,18 +227,18 @@ public class MyBot extends Bot {
 //				System.out.println("Should have this number of pieces: "+ total);//debugging
 //				System.out.println("\nEvaluate state debugging while loop DONE.");//debugging
 				
-				System.out.println("New black mat score:"+MSBlack);//debugging
-				System.out.println("New white mat score:"+MSWhite);//debugging
+//				System.out.println("New black mat score:"+MSBlack);//debugging
+//				System.out.println("New white mat score:"+MSWhite);//debugging
 				
 		// Determine & return utility score
 		if(isBlack) {
 			// We are black, bot is white
-			System.out.println("util score: "+ (MSBlack - MSWhite));//debugging
+//			System.out.println("util score: "+ (MSBlack - MSWhite));//debugging
 			return MSBlack - MSWhite;
 		}
 		else {
-			// We are black, bot is white
-			System.out.println("util score: "+ (MSWhite- MSBlack));//debugging
+			// We are white, bot is black
+//			System.out.println("util score: "+ (MSWhite- MSBlack));//debugging
 			return MSWhite - MSBlack;
 		}
 	}//end evaluateState method
@@ -282,6 +268,8 @@ public class MyBot extends Bot {
 //		//if piece score > than current max, return the new max
 //		return new State();
 //	}
+	
+	
 	protected State greedyStrategy(State root) {
 		/*
 		 * Modeled after greedy bot:
@@ -290,6 +278,7 @@ public class MyBot extends Bot {
 		 * them. It does not “look ahead” at all; it (greedily) chooses only among reachable
 		 * states from the current board configuration
 		 */
+		//root
 		
 		// Material scores:
 		int pawn=1, knight=3, bishop=3, rook=5, queen=9, king=0;
@@ -303,8 +292,19 @@ public class MyBot extends Bot {
 		Iterator<State> iterator = root.next().iterator();
 		while(!root.searchLimitReached() && iterator.hasNext()) {
 //			children.add(iterator.next());
-//			children.put(iterator.next(), evaluateState(root));//previous attempt
-			children.put(iterator.next(), evaluateState(root));//new attempt
+			State nextP = iterator.next();
+			//if(! nextP.check) {
+				children.put(nextP, evaluateState(nextP));
+			//}
+//			System.out.println("NextP: "+nextP + "; Util: "+evaluateState(nextP));
+//			if(evaluateState(nextP) != 0) {
+//				try {
+//					Thread.sleep(900000000);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
 		}
 		//choose one with highest material score
 		//if piece score > than current max, return the new max
@@ -315,14 +315,19 @@ public class MyBot extends Bot {
 		State returnState = null;
         // Iterate through HashMap
         for (Entry<State, Integer> entry : children.entrySet()) {
-        	System.out.println(" Key:"+ entry.getKey() +"; Value: "+ entry.getValue());
-        	System.out.println("Entry get value: "+ entry.getValue());
-        	System.out.println("MaxValueInMap "+ maxValueInMap);
+//        	System.out.println(" Key:"+ entry.getKey() +"; Value: "+ entry.getValue());
+//        	System.out.println("Entry get value: "+ entry.getValue());
+//        	System.out.println("MaxValueInMap "+ maxValueInMap);
             if ( entry.getValue().equals(maxValueInMap) )  {
                 // Print the key with max value
      
             	returnState = entry.getKey();
             }
+        }
+        //children.get(maxValueInMap);
+        //debugging:
+        for (Entry<State, Integer> entry : children.entrySet()) {
+//        	System.out.println(entry.getValue());
         }
         //return new State();
 		return returnState;
