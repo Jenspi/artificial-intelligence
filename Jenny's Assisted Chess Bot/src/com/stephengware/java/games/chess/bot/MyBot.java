@@ -1,8 +1,10 @@
 package com.stephengware.java.games.chess.bot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import com.stephengware.java.games.chess.bot.Bot;
@@ -71,8 +73,9 @@ public class MyBot extends Bot {
 		System.out.println("Black Player: "+Player.BLACK);
 		System.out.println("White Player: "+Player.WHITE);*/
 		
-		evaluateState(root);
-		return children.get(random.nextInt(children.size()));
+		//evaluateState(root);
+		//return children.get(random.nextInt(children.size()));
+		return greedyStrategy(root);
 	}
 	
 	protected int evaluateState(State state) {
@@ -228,7 +231,7 @@ public class MyBot extends Bot {
 							//debugging... should only hit if black has no pieces on board
 							System.out.println("no if's entered for black");
 							break;
-					}
+						}
 					}//end White case
 //					System.out.println("New black mat score:"+MSBlack);//debugging
 //					System.out.println("New white mat score:"+MSWhite);//debugging
@@ -254,6 +257,31 @@ public class MyBot extends Bot {
 		}
 	}//end evaluateState method
 	
+//	protected State greedyStrategy(State root) {
+//		/*
+//		 * Modeled after greedy bot:
+//		 * always chooses the move which maximizes its total material score. If
+//		 * it has multiple moves that result in the same score, it chooses at random between
+//		 * them. It does not “look ahead” at all; it (greedily) chooses only among reachable
+//		 * states from the current board configuration
+//		 */
+//		
+//		// Material scores:
+//		int pawn=1, knight=3, bishop=3, rook=5, queen=9, king=0;
+//		
+//		// This list will hold all the frontier children nodes of the root.
+//		ArrayList<State> children = new ArrayList<>();
+//		
+//		//Generate all children nodes of root (no more than 500k) and store them in list
+//		//root.setSearchLimit(500000);//not really needed because this approach doesn't look ahead
+//		Iterator<State> iterator = root.next().iterator();
+//		while(!root.searchLimitReached() && iterator.hasNext()) {
+//			children.add(iterator.next());
+//		}
+//		//choose one with highest material score
+//		//if piece score > than current max, return the new max
+//		return new State();
+//	}
 	protected State greedyStrategy(State root) {
 		/*
 		 * Modeled after greedy bot:
@@ -267,17 +295,37 @@ public class MyBot extends Bot {
 		int pawn=1, knight=3, bishop=3, rook=5, queen=9, king=0;
 		
 		// This list will hold all the frontier children nodes of the root.
-		ArrayList<State> children = new ArrayList<>();
+		//ArrayList<State> children = new ArrayList<>();
+		HashMap<State, Integer> children = new HashMap<>();
 		
 		//Generate all children nodes of root (no more than 500k) and store them in list
 		//root.setSearchLimit(500000);//not really needed because this approach doesn't look ahead
 		Iterator<State> iterator = root.next().iterator();
 		while(!root.searchLimitReached() && iterator.hasNext()) {
-			children.add(iterator.next());
+//			children.add(iterator.next());
+//			children.put(iterator.next(), evaluateState(root));//previous attempt
+			children.put(iterator.next(), evaluateState(root));//new attempt
 		}
 		//choose one with highest material score
 		//if piece score > than current max, return the new max
-		return new State();
+		
+		//int maxValueInMap = (Collections.max(children.values()));
+		
+		int maxValueInMap = Collections.max(children.values());
+		State returnState = null;
+        // Iterate through HashMap
+        for (Entry<State, Integer> entry : children.entrySet()) {
+        	System.out.println(" Key:"+ entry.getKey() +"; Value: "+ entry.getValue());
+        	System.out.println("Entry get value: "+ entry.getValue());
+        	System.out.println("MaxValueInMap "+ maxValueInMap);
+            if ( entry.getValue().equals(maxValueInMap) )  {
+                // Print the key with max value
+     
+            	returnState = entry.getKey();
+            }
+        }
+        //return new State();
+		return returnState;
 	}
 	
 	protected State minimax(State root) {
