@@ -39,9 +39,12 @@ public class MyBot extends Bot {
 		//Change value for different outcomes
 		this.random = new Random(0);
 	}
+	
+	Player me;
 
 	@Override
 	protected State chooseMove(State root) {
+		me = root.player;
 		/**
 		 * Here you are provided with a State whose root represents the current state of the board and must
 		 * return one of its child states. Each child state represents a reachable state given the
@@ -55,14 +58,14 @@ public class MyBot extends Bot {
 //			e.printStackTrace();
 //		}
 		// This list will hold all the children nodes of the root.
-		ArrayList<State> children = new ArrayList<>();
-		
-		// Generate all the children nodes of the root (that is, all the
-		// possible next states of the game.  Make sure that we do not exceed
-		// the number of GameTree nodes that we are allowed to generate... 500,000 for this assignment.
-		Iterator<State> iterator = root.next().iterator();
-		while(!root.searchLimitReached() && iterator.hasNext())
-			children.add(iterator.next());
+//		ArrayList<State> children = new ArrayList<>();
+//		
+//		// Generate all the children nodes of the root (that is, all the
+//		// possible next states of the game.  Make sure that we do not exceed
+//		// the number of GameTree nodes that we are allowed to generate... 500,000 for this assignment.
+//		Iterator<State> iterator = root.next().iterator();
+//		while(!root.searchLimitReached() && iterator.hasNext())
+//			children.add(iterator.next());
 		
 //		Iterator<Piece> iterator2 = root.board.iterator();
 //		while(!root.searchLimitReached() && iterator.hasNext()) {
@@ -74,7 +77,7 @@ public class MyBot extends Bot {
 		
 		
 //		//debugging/getting player colors:
-		System.out.println("\nUs: "+root.player);//gets my color; shows only my ply per turn
+//		System.out.println("\nUs: "+root.player);//gets my color; shows only my ply per turn
 //		System.out.println("white Player: "+Player.BLACK.other());
 //		System.out.println("Black Player: "+Player.BLACK);
 //		System.out.println("White Player: "+Player.WHITE);
@@ -115,6 +118,7 @@ public class MyBot extends Bot {
 		
 		// check what color we are assigned this game (changes game to game).
 		//if(state.player.equals(Player.BLACK)) {//might not  need if we're gonna have a switch for both colors
+		/*
 		if(state.player.equals(Player.BLACK)) {//might not  need if we're gonna have a switch for both colors
 			// Player => Black
 			isBlack = false;// used for determining util score later
@@ -143,7 +147,26 @@ public class MyBot extends Bot {
 			}
 			
 		}
-		System.out.println("COLOR: " + state.player);
+		*/
+		
+		if(state.check) {
+			if(state.over) {
+				if(state.player.equals(Player.WHITE)){
+					//white in checkmate
+					MSBlack += gameoverpts;
+				}
+				if(state.player.equals(Player.BLACK)){
+					//black in checkmate
+					MSWhite += gameoverpts;
+				}
+			}
+		}
+		
+		
+		
+		
+		
+//		System.out.println("COLOR: " + state.player);
 			
 			//could also do one large switch statement checking if piece is black/white and adding to their own variables?
 			//then check if im black or white, and check who is winning/losing
@@ -168,17 +191,18 @@ public class MyBot extends Bot {
 //					System.out.println("i.player: "+i.player);
 //					System.out.println("i.player: "+i.player);
 					
-					
+					//state.board.toString()//ascii
 					
 					if(i.player.equals(Player.BLACK)) {
 //						System.out.printf("PIECE %d: %s is BLACK\n", tempCounter, i);// debugging
 						//System.out.printf("PIECE %d: %s is BLACK\n and a %s", tempCounter, i, (i.getClass()));// debugging
 						// PIECE BELONGS TO BLACK HERE
+						System.out.println("Class: " + i.getClass()+"\nClass toString: "+i.toString());
 						switch(i.toString().toUpperCase()) {
 							case "P":
 								MSBlack += pawn;
 								break;
-							case "K":
+							case "N":
 								MSBlack += knight;
 								break;
 							case "B":
@@ -192,7 +216,7 @@ public class MyBot extends Bot {
 								break;
 							default:
 								//debugging... should only hit if black has no pieces on board
-								//System.out.println("no if's entered for black");
+								System.out.println("no if's entered for black");
 								break;
 						}
 					}//end Black case
@@ -201,7 +225,7 @@ public class MyBot extends Bot {
 						case "P":
 							MSWhite += pawn;
 							break;
-						case "K":
+						case "N":
 							MSWhite += knight;
 							break;
 						case "B":
@@ -231,7 +255,7 @@ public class MyBot extends Bot {
 //				System.out.println("New white mat score:"+MSWhite);//debugging
 				
 		// Determine & return utility score
-		if(isBlack) {
+		if(me.equals(Player.BLACK)) {
 			// We are black, bot is white
 //			System.out.println("util score: "+ (MSBlack - MSWhite));//debugging
 			return MSBlack - MSWhite;
@@ -296,7 +320,8 @@ public class MyBot extends Bot {
 			//if(! nextP.check) {
 				children.put(nextP, evaluateState(nextP));
 			//}
-//			System.out.println("NextP: "+nextP + "; Util: "+evaluateState(nextP));
+			System.out.println("NextP: "+nextP + "; Util: "+evaluateState(nextP));
+			
 //			if(evaluateState(nextP) != 0) {
 //				try {
 //					Thread.sleep(900000000);
@@ -312,6 +337,7 @@ public class MyBot extends Bot {
 		//int maxValueInMap = (Collections.max(children.values()));
 		
 		int maxValueInMap = Collections.max(children.values());
+		
 		State returnState = null;
         // Iterate through HashMap
         for (Entry<State, Integer> entry : children.entrySet()) {
@@ -326,9 +352,9 @@ public class MyBot extends Bot {
         }
         //children.get(maxValueInMap);
         //debugging:
-        for (Entry<State, Integer> entry : children.entrySet()) {
+//        for (Entry<State, Integer> entry : children.entrySet()) {
 //        	System.out.println(entry.getValue());
-        }
+//        }
         //return new State();
 		return returnState;
 	}
