@@ -1,22 +1,13 @@
 package com.stephengware.java.games.chess.bot;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import com.stephengware.java.games.chess.bot.Bot;
-import com.stephengware.java.games.chess.state.Bishop;
-import com.stephengware.java.games.chess.state.Board;
-import com.stephengware.java.games.chess.state.King;
-import com.stephengware.java.games.chess.state.Knight;
-import com.stephengware.java.games.chess.state.Pawn;
 import com.stephengware.java.games.chess.state.Piece;
 import com.stephengware.java.games.chess.state.Player;
-import com.stephengware.java.games.chess.state.Queen;
-import com.stephengware.java.games.chess.state.Rook;
 import com.stephengware.java.games.chess.state.State;
 
 /**
@@ -25,9 +16,9 @@ import com.stephengware.java.games.chess.state.State;
  * @author Stephen G. Ware
  */
 public class MyBot extends Bot {
-	private final String playername;
 	/** A random number generator */
-	private final Random random;
+	//private final Random random;
+	Player me;
 	
 	/**
 	 * Constructs a new chess bot named "jmspicer" and whose random  number
@@ -35,12 +26,11 @@ public class MyBot extends Bot {
 	 */
 	public MyBot() {
 		super("jmspicer");
-		playername = "jmspicer";
 		//Change value for different outcomes
-		this.random = new Random(0);
+		//this.random = new Random(0);
 	}
 	
-	Player me;
+	
 
 	@Override
 	protected State chooseMove(State root) {
@@ -84,6 +74,9 @@ public class MyBot extends Bot {
 		
 		//evaluateState(root);
 		//return children.get(random.nextInt(children.size()));
+		
+		
+		//return minimax(root, 2, me);
 		return greedyStrategy(root);
 	}
 	
@@ -302,6 +295,7 @@ public class MyBot extends Bot {
 		 * them. It does not “look ahead” at all; it (greedily) chooses only among reachable
 		 * states from the current board configuration
 		 */
+		// FOR BEATING RANDOM BOT
 		//root
 		
 		// Material scores:
@@ -333,9 +327,6 @@ public class MyBot extends Bot {
 		}
 		//choose one with highest material score
 		//if piece score > than current max, return the new max
-		
-		//int maxValueInMap = (Collections.max(children.values()));
-		
 		int maxValueInMap = Collections.max(children.values());
 		
 		State returnState = null;
@@ -359,10 +350,41 @@ public class MyBot extends Bot {
 		return returnState;
 	}
 	
-	protected State minimax(State root) {
-		//Goal: Minimax with Alpha-Beta pruning and Iterative Deepening Search
+	protected boolean isTerminal(State state) {
+		if(state.countDescendants() == 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}//end isTerminal
+	
+	protected State minimax(State state, int depthLimit, boolean maximizingPlayer) {
+		/*
+		 * Goal: Minimax with Alpha-Beta pruning and Iterative Deepening Search
+		 * Using minmax pseudocode: https://en.wikipedia.org/wiki/Minimax
+		 */
+		
+		int alpha = Integer.MAX_VALUE;
+		int beta = Integer.MIN_VALUE;
+		int value;
+		
+//		function minimax(node, depth, maximizingPlayer) is
+//	    if depth = 0 or node is a terminal node then
+//	        return the heuristic value of node
+//	    if maximizingPlayer then
+//	        value := −∞
+//	        for each child of node do
+//	            value := max(value, minimax(child, depth − 1, FALSE))
+//	        return value
+//	    else (* minimizing player *)
+//	        value := +∞
+//	        for each child of node do
+//	            value := min(value, minimax(child, depth − 1, TRUE))
+//	        return value
+		
 		//stubbed
 		return new State();
-	}
+	}//end minimax
 	
 }
