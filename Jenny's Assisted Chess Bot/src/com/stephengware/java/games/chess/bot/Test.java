@@ -28,7 +28,7 @@ public class Test {
 		Bot[] bots = new Bot[]{
 				//new Human(),
 				new MyBot(),
-				//new RandomBot(),
+				new RandomBot(),
 				new GreedyBot(),
 				//new NoviceBot(),
 				//new BeginnerBot(),
