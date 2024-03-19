@@ -1,12 +1,9 @@
 package edu.uno.ai.sat.ex;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import edu.uno.ai.sat.Assignment;
-import edu.uno.ai.sat.Clause;
-import edu.uno.ai.sat.Literal;
 import edu.uno.ai.sat.Solver;
 import edu.uno.ai.sat.Value;
 import edu.uno.ai.sat.Variable;
@@ -34,30 +31,84 @@ public class SATSolver extends Solver {
 	 */
 	@Override
 	public boolean solve(Assignment assignment) {
-		// If the problem has no variables, it is assumed to have the values true or false.
-		// edge case where there are 0 variables:
-		if(assignment.problem.variables.size() == 0)
+		/* Brute force:
+			Begin with every variable’s value unassigned.
+			To find a model which satisfies a CNF expression:
+				If every clause is true, return true. ✓
+				If any clause is empty, return false. ✓
+				Choose an unassigned variable V.
+				Set V=T. Try to find a model that satisfies.
+				Set V=F. Try to find a model that satisfies.
+				Return false.
+		*/
+		
+		// If it already has a solution, return true
+		// (I don't know if this will run me into issues so it will be commented out for now)
+//		if(assignment.getValue() == Value.TRUE) {
+//			return true;
+//		}
+		// If the problem has no variables, it is assumed to have the values true or false. (pre-programmed)
+		if(assignment.problem.variables.size() == 0) {
+			System.out.println("Variable value: +"+assignment.getValue());//debugging
 			return assignment.getValue() == Value.TRUE;
+		}
+		// If every clause is true, return true. (edge case)
+		else if( (assignment.countUnknownClauses() == 0) || (assignment.countFalseClauses() == 0) ) {
+			return true;
+		}
+		// If any clause is empty, return false. (edge case)
+		else if(assignment.countUnknownClauses() > 0) {
+			return false;
+		}
 		else {
 			// Keep trying until the assignment is satisfying.
 			while(assignment.getValue() != Value.TRUE) {
-				// Choose a variable whose value will be set.
-				Variable variable = chooseVariable(assignment);
-				// Choose 'true' or 'false' at random.
-				Value value;
-				if(random.nextBoolean())//randomly is true or false
-					value = Value.TRUE;
-				else {
-					value = Value.FALSE;
-				}
-				// Assign the chosen value to the chosen variable.
-				assignment.setValue(variable, value);
+				// Add all variables with unknown values from the problem to an ArrayList
+				ArrayList<Variable> unknowns = new ArrayList<>();
+				for(Variable variable : assignment.problem.variables){
+					if(assignment.getValue(variable) == Value.UNKNOWN){
+						unknowns.add(variable);
+					}
+				}//end for loop
+				
+				// Choose a variable whose value will be set; here, choose an UNASSIGNED variable (V).
+				//Variable variable = chooseVariable(assignment);//old code
+				Variable variable = unknowns.get(0);
+				
+				// Set V=T. Try to find a model that satisfies.
+				//assignment.setValue(variable, Value.TRUE);
+				tryValue(assignment, variable, Value.TRUE);//tryValue() is used in place of solve()-- tryValue() undoes wrong switches
+				
+				// Set V=F. Try to find a model that satisfies.
+				tryValue(assignment, variable, Value.FALSE);
+				
+				// Return false
+				return false;
 			}
 			// Return success. (Note, if the problem cannot be solved, this
 			// solver will run until it reaches the operations or time limit.)
 			return true;
 		}
-	}
+	}//end Solve()
+	
+	// Set a variable to a value, and if it doesn't work, undo it; Given through PDF.
+	private boolean tryValue(Assignment a, Variable var, Value val) {
+		// Backup variable's current value
+		Value backup = a.getValue(var);
+		
+		// Now, set the variable to the given value
+		a.setValue(var, val);
+		
+		// Try to solve the problem with this new value
+		if( solve(a) ){
+			return true;
+		}
+		else {
+			// We failed, so return the variable to the backup (previous) value.
+			a.setValue(var, backup);
+			return false;
+		}
+	}// end tryValue()
 	
 	/*
 	 * WALKSAT pseudocode (checks satisfiability by randomly flipping the values of variables)
@@ -76,6 +127,8 @@ public class SATSolver extends Solver {
 	 * return failure
 	 */
 	
+	
+	
 	/**
 	 * Randomly choose a variable from the problem whose value will be set. If
 	 * any variables have the value 'unknown,' choose one of those first;
@@ -84,8 +137,10 @@ public class SATSolver extends Solver {
 	 * @param assignment the assignment being worked on
 	 * @return a variable, chosen randomly
 	 */
+	@SuppressWarnings("unused")
 	private final Variable chooseVariable(Assignment assignment) {
 		// This list will hold all variables whose current value is 'unknown.'
+		// this will choose a random variable and assign it a random value-- not good for brute/dpll
 		ArrayList<Variable> unknown = new ArrayList<>();
 		// Loop through all the variables in the problem and find ones whose
 		// current value is 'unknown.'
