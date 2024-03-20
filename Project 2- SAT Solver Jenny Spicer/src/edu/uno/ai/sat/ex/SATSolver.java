@@ -101,6 +101,28 @@ public class SATSolver extends Solver {
 	}// end tryValue()
 	
 	/*
+	 * DPLL pseudocode
+	 * 
+	 * function DPLL-SATISFIABLE?(s) returns true or false
+	 * inputs: s, a sentence in propositional logic
+	 * 
+	 * clauses <- the set of clauses in the CNF representation of s
+	 * symbols <- a list of the proposition symbols in s
+	 * return DPLL(clauses, symbols, {})
+	 * ----------------------------------------
+	 * function DPLL(clauses, symbols, model) returns true or false
+	 * 
+	 * if every clause in clauses is true in model then return true
+	 * if some clause in clauses is false in model then return false
+	 * P, value <- FIND-PURE-SYMBOL(symbols, clauses, model)
+	 * if P is non-null then return DPLL(clauses, symbols - P, model UNION {P=value})
+	 * P, value <- FIND-UNIT-CLAUSE(clauses, model)
+	 * if P is non-null then return DPLL(clauses, symbols - P, model UNION {P=value})
+	 * P <- FIRST(symbols); rest <- REST(symbols)
+	 * return DPLL(clauses, rest, model UNION {P=true}) or DPLL(clauses, rest, model UNION {P=false})
+	 */
+	
+	/*
 	 * WALKSAT pseudocode (checks satisfiability by randomly flipping the values of variables)
 	 * 
 	 * function WALKSAT(clauses, p, max_flips) returns a satisfying model or failure
