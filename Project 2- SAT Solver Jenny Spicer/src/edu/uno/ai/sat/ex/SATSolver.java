@@ -31,72 +31,62 @@ public class SATSolver extends Solver {
 	 */
 	@Override
 	public boolean solve(Assignment assignment) {
-		/* Brute force:
-			Begin with every variable’s value unassigned.
-			To find a model which satisfies a CNF expression:
-				If every clause is true, return true. ✓
-				If any clause is empty, return false. ✓
-				Choose an unassigned variable V.
-				Set V=T. Try to find a model that satisfies.
-				Set V=F. Try to find a model that satisfies.
-				Return false.
-		*/
-		
-		// If it already has a solution, return true
-		// (I don't know if this will run me into issues so it will be commented out for now)
-//		if(assignment.getValue() == Value.TRUE) {
-//			return true;
-//		}
 		// If the problem has no variables, it is assumed to have the values true or false. (pre-programmed)
 		if(assignment.problem.variables.size() == 0) {
-			System.out.println("Variable value: +"+assignment.getValue());//debugging
 			return assignment.getValue() == Value.TRUE;
 		}
 		// If every clause is true, return true. (edge case)
-		else if( (assignment.countUnknownClauses() == 0) || (assignment.countFalseClauses() == 0) ) {
-			return true;
-		}
+//		else if( (assignment.countUnknownClauses() == 0) || (assignment.countFalseClauses() == 0) ) {
+//			return true;
+//		}
 		// If any clause is empty, return false. (edge case)
-		else if(assignment.countUnknownClauses() > 0) {
-			return false;
-		}
+//		else if(assignment.countUnknownClauses() > 0) {
+//			return false;
+//		}
 		else {
+			// Add all variables with unknown values from the problem to an ArrayList
+			ArrayList<Variable> unknowns = new ArrayList<>();
+			for(Variable variable : assignment.problem.variables){
+				if(assignment.getValue(variable) == Value.UNKNOWN){
+					unknowns.add(variable);
+				}
+			}//end for loop
+			
 			// Keep trying until the assignment is satisfying.
+			int index = 0;
 			while(assignment.getValue() != Value.TRUE) {
-				// Add all variables with unknown values from the problem to an ArrayList
-				ArrayList<Variable> unknowns = new ArrayList<>();
-				for(Variable variable : assignment.problem.variables){
-					if(assignment.getValue(variable) == Value.UNKNOWN){
-						unknowns.add(variable);
-					}
-				}//end for loop
-				
+			//while(index < unknowns.size()) {
 				// Choose a variable whose value will be set; here, choose an UNASSIGNED variable (V).
-				//Variable variable = chooseVariable(assignment);//old code
-				Variable variable = unknowns.get(0);
+				Variable variable = unknowns.get(index);
 				
 				// Set V=T. Try to find a model that satisfies.
-				//assignment.setValue(variable, Value.TRUE);
-				tryValue(assignment, variable, Value.TRUE);//tryValue() is used in place of solve()-- tryValue() undoes wrong switches
-				
-				// Set V=F. Try to find a model that satisfies.
-				tryValue(assignment, variable, Value.FALSE);
-				
-				// Return false
-				return false;
-			}
-			// Return success. (Note, if the problem cannot be solved, this
-			// solver will run until it reaches the operations or time limit.)
-			return true;
-		}
+				if(tryValue(assignment, variable, Value.TRUE)){
+					//tryValue() is used in place of solve()-- tryValue() undoes wrong switches
+					index++;
+				}
+				else if(tryValue(assignment, variable, Value.FALSE)) {
+					index++;
+				}
+				else {
+					// Will go into this bracket if setting it to FALSE did NOT work
+					// Set V=F. Try to find a model that satisfies.
+					assignment.setValue(variable, Value.UNKNOWN);//cleaning up after ourselves
+					//index++;
+				}
+			}//end while loop
+			
+			//return true if assignment is satisfied, false if not satisfied.
+			return assignment.getValue() == Value.TRUE;
+
+		}//end (long) else statement
 	}//end Solve()
 	
-	// Set a variable to a value, and if it doesn't work, undo it; Given through PDF.
+
 	private boolean tryValue(Assignment a, Variable var, Value val) {
-		// Backup variable's current value
-		Value backup = a.getValue(var);
+		// tryValue's mission: Set a variable to a value, and if it doesn't work, undo it; Given through PDF.
 		
-		// Now, set the variable to the given value
+		// Backup variable's current value, then set the variable's new value to val
+		Value backup = a.getValue(var);
 		a.setValue(var, val);
 		
 		// Try to solve the problem with this new value
@@ -153,49 +143,5 @@ public class SATSolver extends Solver {
 		// Otherwise, choose any variable from the problem at random.
 		else
 			return assignment.problem.variables.get(random.nextInt(assignment.problem.variables.size()));
-	}
-	
-	//---------------------------- HELPERS ----------------------------//
-	
-//	/**
-//	 * Finds out if any given variable is a pure symbol.
-//	 * Example: (and (or A B) (or (not A) B) [or (not A) (not B)]); // TODO: ADD explanation   .
-//	 * 
-//	 * @param literals	List of one or more Literal
-//	 * @see clauseList	clauseList helper method for getting a list of Literals from a given Clause
-//	 * @param variable	Variable to check
-//	 * @return a boolean; true if pure, otherwise false.
-//	 */
-//	public boolean pureCheck(ArrayList<Literal> literals, Variable variable) {
-//		//stubbed
-//		return true;
-//	}
-//	
-//	/**
-//	 * This is the list of each literal that shows up in a specific clause; could be used to help find unit clauses.
-//	 * Example: (or (not A) B); There are two literals: the (not A) literal, and the B literal.
-//	 * 
-//	 * @param clause	A Clause looks like this: (or (not A) B)
-//	 * @return an ArrayList containing one or more Literal.
-//	 */
-//	public ArrayList<Literal> clauseList(Clause clause){
-//		//ArrayList<Literal> list = new ArrayList<Literal>();
-//		
-//		//stubbed
-//		return new ArrayList<Literal>();
-//	}
-//	
-//	/**
-//	 * This is how you know if the literal is a “positive” literal or a “negative” literal, i.e.,
-//	 * whether the literal is negated or not. This also can be used to help find pure symbols!
-//	 * Example: (or (not A) B); The ‘A’ literal here would have a valence of ‘false’ because it is negated.
-//	 * The ‘B’ literal here would have a valence of ‘true’ because it is not negated.
-//	 * 
-//	 * @param clause	A Clause looks like this: (or (not A) B)
-//	 * @return an ArrayList containing one or more Literal.
-//	 */
-//	public boolean valence(Literal literal) {
-//		//stubbed
-//		return true;
-//	}
+	}//end chooseVariable()
 }
