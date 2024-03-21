@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import edu.uno.ai.sat.Assignment;
+import edu.uno.ai.sat.Literal;
 import edu.uno.ai.sat.Solver;
 import edu.uno.ai.sat.Value;
 import edu.uno.ai.sat.Variable;
@@ -35,14 +36,33 @@ public class SATSolver extends Solver {
 		if(assignment.problem.variables.size() == 0) {
 			return assignment.getValue() == Value.TRUE;
 		}
+		if(assignment.problem.variables.size() == 1) {
+			Variable loneVar = assignment.problem.variables.get(0);
+			Literal firstLiteral = loneVar.literals.get(0);
+			if(firstLiteral.valence) {
+				assignment.setValue(loneVar, Value.TRUE);
+			}
+			else {
+				assignment.setValue(loneVar, Value.FALSE);
+			}
+			//assignment.setValue(, Value.TRUE);
+			return assignment.getValue() == Value.TRUE;
+		}
 		// If every clause is true, return true. (edge case)
-//		else if( (assignment.countUnknownClauses() == 0) || (assignment.countFalseClauses() == 0) ) {
-//			return true;
-//		}
+		else if( (assignment.countUnknownClauses() == 0) && (assignment.countFalseClauses() == 0) ) {
+			return true;
+		}
 		// If any clause is empty, return false. (edge case)
 //		else if(assignment.countUnknownClauses() > 0) {
 //			return false;
 //		}
+		
+		//make base case for false
+		else if(assignment.getValue() == Value.FALSE) {
+			return false;
+		}
+		
+		
 		else {
 			// Add all variables with unknown values from the problem to an ArrayList
 			ArrayList<Variable> unknowns = new ArrayList<>();
@@ -54,18 +74,23 @@ public class SATSolver extends Solver {
 			
 			// Keep trying until the assignment is satisfying.
 			int index = 0;
-			while(assignment.getValue() != Value.TRUE) {
+			//while(assignment.getValue() != Value.TRUE) {
 			//while(index < unknowns.size()) {
-				// Choose a variable whose value will be set; here, choose an UNASSIGNED variable (V).
+			// Choose a variable whose value will be set; here, choose an UNASSIGNED variable (V).
+			if(unknowns.size() > 0) {
 				Variable variable = unknowns.get(index);
+				
+				
 				
 				// Set V=T. Try to find a model that satisfies.
 				if(tryValue(assignment, variable, Value.TRUE)){
+					return true;
 					//tryValue() is used in place of solve()-- tryValue() undoes wrong switches
-					index++;
+					//index++;
+					
 				}
 				else if(tryValue(assignment, variable, Value.FALSE)) {
-					index++;
+					//index++;
 				}
 				else {
 					// Will go into this bracket if setting it to FALSE did NOT work
@@ -73,7 +98,11 @@ public class SATSolver extends Solver {
 					assignment.setValue(variable, Value.UNKNOWN);//cleaning up after ourselves
 					//index++;
 				}
-			}//end while loop
+			}
+			else {
+				
+			}
+			//}//end while loop
 			
 			//return true if assignment is satisfied, false if not satisfied.
 			return assignment.getValue() == Value.TRUE;
@@ -103,8 +132,8 @@ public class SATSolver extends Solver {
 	/*
 	 * DPLL pseudocode
 	 * 
-	 * function DPLL-SATISFIABLE?(s) returns true or false
-	 * inputs: s, a sentence in propositional logic
+	 * ✓function DPLL-SATISFIABLE?(s) returns true or false
+	 * ✓inputs: s, a sentence in propositional logic
 	 * 
 	 * clauses <- the set of clauses in the CNF representation of s
 	 * symbols <- a list of the proposition symbols in s
