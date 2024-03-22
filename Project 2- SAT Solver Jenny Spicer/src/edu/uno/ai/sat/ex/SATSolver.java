@@ -32,6 +32,10 @@ public class SATSolver extends Solver {
 	 */
 	@Override
 	public boolean solve(Assignment assignment) {
+		
+		//Simplify the model using unit propagation.
+	    //Simplify the model using pure symbols.
+		
 		// If the problem has no variables, it is assumed to have the values true or false. (pre-programmed)
 		if(assignment.problem.variables.size() == 0) {
 			return assignment.getValue() == Value.TRUE;
@@ -110,6 +114,41 @@ public class SATSolver extends Solver {
 		}//end (long) else statement
 	}//end Solve()
 	
+//	private boolean unitClause(Assignment assignment) {
+//		//means it has exactly one unassigned literal
+//		
+//	
+//	}
+	
+	private ArrayList<Literal> pureSymbols(Assignment assignment) {
+		ArrayList<Literal> positives = new ArrayList<>();
+		ArrayList<Literal> negatives = new ArrayList<>();
+		
+		ArrayList<Literal> pure_symbols = new ArrayList<>();
+		
+		for(Variable variable : assignment.problem.variables){
+//			Variable loneVar = assignment.problem.variables.get(0);
+//			Literal firstLiteral = loneVar.literals.get(0);
+			for(int i=0; i<variable.literals.size(); i++) {
+				Literal current_literal = variable.literals.get(i);
+				if(current_literal.valence) {
+					//positive valence
+					positives.add(current_literal);
+				}
+				else {
+					//negative valence
+					negatives.add(current_literal);
+				}
+			}
+		}//end for loop
+		
+		// Keep elements that both lists have in common
+		pure_symbols.addAll(positives);
+		pure_symbols.retainAll(negatives);
+		
+		return pure_symbols;
+	}//end pureSymbols()
+	
 
 	private boolean tryValue(Assignment a, Variable var, Value val) {
 		// tryValue's mission: Set a variable to a value, and if it doesn't work, undo it; Given through PDF.
@@ -141,8 +180,8 @@ public class SATSolver extends Solver {
 	 * ----------------------------------------
 	 * function DPLL(clauses, symbols, model) returns true or false
 	 * 
-	 * if every clause in clauses is true in model then return true
-	 * if some clause in clauses is false in model then return false
+	 * ✓if every clause in clauses is true in model then return true
+	 * ✓if some clause in clauses is false in model then return false
 	 * P, value <- FIND-PURE-SYMBOL(symbols, clauses, model)
 	 * if P is non-null then return DPLL(clauses, symbols - P, model UNION {P=value})
 	 * P, value <- FIND-UNIT-CLAUSE(clauses, model)
