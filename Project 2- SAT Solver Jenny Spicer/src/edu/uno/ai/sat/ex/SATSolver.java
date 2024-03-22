@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import edu.uno.ai.sat.Assignment;
+import edu.uno.ai.sat.Clause;
 import edu.uno.ai.sat.Literal;
 import edu.uno.ai.sat.Solver;
 import edu.uno.ai.sat.Value;
@@ -61,13 +62,29 @@ public class SATSolver extends Solver {
 //			return false;
 //		}
 		
-		//make base case for false
+		// Base case for false
 		else if(assignment.getValue() == Value.FALSE) {
 			return false;
 		}
 		
-		
+		// Main code:
 		else {
+			//check for unit prop
+			//////
+			
+			// Check for pure symbols, and set them to true values
+			if( !pureSymbols(assignment).isEmpty() ) {
+				ArrayList<Literal> symbols = pureSymbols(assignment);
+				for(Literal literal : symbols) {
+					if(tryValue(assignment, literal.variable, Value.TRUE)) {
+						return true;
+					}
+					else if(tryValue(assignment, literal.variable, Value.FALSE)) {
+						return true;
+					}
+				}
+			}
+			
 			// Add all variables with unknown values from the problem to an ArrayList
 			ArrayList<Variable> unknowns = new ArrayList<>();
 			for(Variable variable : assignment.problem.variables){
@@ -95,17 +112,18 @@ public class SATSolver extends Solver {
 				}
 				else if(tryValue(assignment, variable, Value.FALSE)) {
 					//index++;
+					return true;
 				}
-				else {
-					// Will go into this bracket if setting it to FALSE did NOT work
-					// Set V=F. Try to find a model that satisfies.
-					assignment.setValue(variable, Value.UNKNOWN);//cleaning up after ourselves
-					//index++;
-				}
+//				else {
+//					// Will go into this bracket if setting it to FALSE did NOT work
+//					// Set V=F. Try to find a model that satisfies.
+//					assignment.setValue(variable, Value.UNKNOWN);//cleaning up after ourselves
+//					//index++;
+//				}
 			}
-			else {
-				
-			}
+//			else {
+//				
+//			}
 			//}//end while loop
 			
 			//return true if assignment is satisfied, false if not satisfied.
@@ -114,11 +132,26 @@ public class SATSolver extends Solver {
 		}//end (long) else statement
 	}//end Solve()
 	
-//	private boolean unitClause(Assignment assignment) {
-//		//means it has exactly one unassigned literal
-//		
-//	
-//	}
+	private boolean unitClause(Assignment assignment, Clause clause) {
+		//means clause has exactly one unassigned literal
+		//set to true and see if it works, else set to false
+		int unknowns_count = 0;
+		for(Literal literal : clause.literals) {
+			if(assignment.getValue(literal) == Value.UNKNOWN) {
+				//NOT SURE IF THIS WORKS-- trying to go through the literals in one clause,
+				//seeing if there is exactly one unknown literal, then setting it to true later.
+				unknowns_count++;
+			}
+		}
+		
+		if(unknowns_count == 1) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	
+	}
 	
 	private ArrayList<Literal> pureSymbols(Assignment assignment) {
 		ArrayList<Literal> positives = new ArrayList<>();
