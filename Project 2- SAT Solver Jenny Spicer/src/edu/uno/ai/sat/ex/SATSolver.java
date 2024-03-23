@@ -72,18 +72,18 @@ public class SATSolver extends Solver {
 			//check for unit prop
 			//////
 			
-			// Check for pure symbols, and set them to true values
-			if( !pureSymbols(assignment).isEmpty() ) {
-				ArrayList<Literal> symbols = pureSymbols(assignment);
-				for(Literal literal : symbols) {
-					if(tryValue(assignment, literal.variable, Value.TRUE)) {
-						return true;
-					}
-					else if(tryValue(assignment, literal.variable, Value.FALSE)) {
-						return true;
-					}
-				}
-			}
+//			// Check for pure symbols, and set them to true values
+//			if( !pureSymbols(assignment).isEmpty() ) {
+//				ArrayList<Literal> symbols = pureSymbols(assignment);
+//				for(Literal literal : symbols) {
+//					if(tryValue(assignment, literal.variable, Value.TRUE)) {
+//						return true;
+//					}
+//					else if(tryValue(assignment, literal.variable, Value.FALSE)) {
+//						return true;
+//					}
+//				}
+//			}
 			
 			// Add all variables with unknown values from the problem to an ArrayList
 			ArrayList<Variable> unknowns = new ArrayList<>();
