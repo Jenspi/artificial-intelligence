@@ -134,7 +134,12 @@ public class SATSolver extends Solver {
 	
 	private boolean unitClause(Assignment assignment, Clause clause) {
 		//means clause has exactly one unassigned literal
+		//unit clause is a clause with one unknown literal-- marking it as special; unit prop is recognizing unit clause and setting values; using info from unit clauses to make a decision for model 
+		//cuts down on time
 		//set to true and see if it works, else set to false
+		//return assignment.countUnknownLiterals(clause) == 1;
+		
+		
 		int unknowns_count = 0;
 		for(Literal literal : clause.literals) {
 			if(assignment.getValue(literal) == Value.UNKNOWN) {
@@ -152,6 +157,74 @@ public class SATSolver extends Solver {
 		}
 	
 	}
+	
+	// Get unknown variable from a unit clause
+	private Literal getUnknown(Assignment assignment, Clause unitClause) {
+		// Would like/possibly need checking
+		Literal unknown_literal = null;
+			
+			for(Literal literal : unitClause.literals) {
+				if(assignment.getValue(literal) == Value.UNKNOWN) {
+					unknown_literal = literal;
+				}
+			}
+			return unknown_literal;
+	}
+	
+	
+	// TIP: with FALSE V variable, we can just do V variable because FALSE doesnt help
+	// remember to check if new unit clauses created from solving current/previous unit clauses
+	
+	/*
+	//challenge:
+	//step 1: take clause, return all unit clauses
+	//step 2: take unit clauses from list (getter) (could be random or in order)
+	//step 3: use step two to solve with tryvalue */
+	
+	//###########################################################################//
+	// Return all unit clauses from an assignment, part 1/3 of challenge
+	private ArrayList<Clause> assignmentToUnitClauses(Assignment assignment){
+		ArrayList<Clause> unit_clauses = new ArrayList<>();
+		
+		for(Clause clause : assignment.problem.clauses) {
+			if( unitClause(assignment, clause) ) {
+				// If the clause is a unit clause, add to list
+				unit_clauses.add(clause);
+			}
+		}
+		
+		// returns a list of unit clauses, to be used for step 2 (below)
+		return unit_clauses;
+	}
+	
+	// Pick a unit clause from our list that was returned from assignmentToUnitClauses(), part 2/3 of challenge
+	private Clause pickUnitClause(ArrayList<Clause> clausesList) {
+		try {
+			// To send a unit clause to part three
+			return clausesList.get(0);
+		}
+		catch(Exception e) {
+			System.out.println(e.toString());
+			return null;
+		}
+		
+	}
+	
+	// Solve unit clause with tryValue(), part 3/3 of challenge
+	private boolean solveUnitClause(Assignment assignment, Clause clause) {
+		Literal unknownLit = getUnknown(assignment, clause);
+		Variable unknownVar = unknownLit.variable;
+		
+		if(tryValue(assignment, unknownVar, Value.TRUE)){
+			return true;
+		}
+		else if(tryValue(assignment, unknownVar, Value.FALSE)) {
+			return true;
+		}
+		return false;
+	}//end solveUnitClause()
+	
+	//###########################################################################//
 	
 	private ArrayList<Literal> pureSymbols(Assignment assignment) {
 		ArrayList<Literal> positives = new ArrayList<>();
