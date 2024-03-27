@@ -69,10 +69,23 @@ public class SATSolver extends Solver {
 		
 		// Main code:
 		else {
-			//check for unit prop
-			//////
+			// CHECK FOR UNIT PROP
+			ArrayList<Clause> unit_clauses_list = assignmentToUnitClauses(assignment);
+			Clause currentClause = pickUnitClause(unit_clauses_list);
 			
-//			// Check for pure symbols, and set them to true values
+			//TODO CHWCK IF UNIT CKAUSE IS NULL
+			
+			if( solveUnitClause(assignment, currentClause) ) {
+				//TODO:
+				return solveUNITCLAUSE()
+				//check again for newly created unit clauses?
+				
+			}
+			
+			
+//			// TODO CHECK FOR PURE SYMBOLS (could be before or after unit prop--
+			//different cases but same format as checking for unit clauses except checking for
+			//pure symbols then propagating those
 //			if( !pureSymbols(assignment).isEmpty() ) {
 //				ArrayList<Literal> symbols = pureSymbols(assignment);
 //				for(Literal literal : symbols) {
@@ -132,13 +145,13 @@ public class SATSolver extends Solver {
 		}//end (long) else statement
 	}//end Solve()
 	
+	// Checks if the clause in the assignment is a unit clause
 	private boolean unitClause(Assignment assignment, Clause clause) {
 		//means clause has exactly one unassigned literal
 		//unit clause is a clause with one unknown literal-- marking it as special; unit prop is recognizing unit clause and setting values; using info from unit clauses to make a decision for model 
 		//cuts down on time
 		//set to true and see if it works, else set to false
 		//return assignment.countUnknownLiterals(clause) == 1;
-		
 		
 		int unknowns_count = 0;
 		for(Literal literal : clause.literals) {
@@ -162,7 +175,6 @@ public class SATSolver extends Solver {
 	private Literal getUnknown(Assignment assignment, Clause unitClause) {
 		// Would like/possibly need checking
 		Literal unknown_literal = null;
-			
 			for(Literal literal : unitClause.literals) {
 				if(assignment.getValue(literal) == Value.UNKNOWN) {
 					unknown_literal = literal;
@@ -207,7 +219,6 @@ public class SATSolver extends Solver {
 			System.out.println(e.toString());
 			return null;
 		}
-		
 	}
 	
 	// Solve unit clause with tryValue(), part 3/3 of challenge
@@ -215,6 +226,7 @@ public class SATSolver extends Solver {
 		Literal unknownLit = getUnknown(assignment, clause);
 		Variable unknownVar = unknownLit.variable;
 		
+		//TODO check valence instead
 		if(tryValue(assignment, unknownVar, Value.TRUE)){
 			return true;
 		}

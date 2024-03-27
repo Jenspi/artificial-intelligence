@@ -29,8 +29,8 @@ public class Test {
 		new SATSolver(),
 		new BruteForceSolver(),
 		new DPLL(),
-		new GSAT(),
-		new WalkSAT(),
+		//new GSAT(),
+		//new WalkSAT(),
 	};
 	
 	/**
@@ -68,6 +68,7 @@ public class Test {
 		"benchmarks/3sat_medium_3.sat",
 		"benchmarks/3sat_medium_4.sat",
 		"benchmarks/3sat_medium_5.sat",
+		
 		"benchmarks/3sat_hard_1.sat",
 		"benchmarks/3sat_hard_2.sat",
 		"benchmarks/3sat_hard_3.sat",
@@ -80,7 +81,7 @@ public class Test {
 		"benchmarks/bb_blocks_sussman_time_3.sat",
 		"benchmarks/bb_blocks_reverse_2_time_2.sat",
 		"benchmarks/bb_blocks_reverse_4_time_5.sat",
-		"benchmarks/bb_blocks_reverse_6_time_7.sat",
+		/*"benchmarks/bb_blocks_reverse_6_time_7.sat",
 		"benchmarks/bb_blocks_reverse_8_time_9.sat",
 		"benchmarks/bb_blocks_reverse_10_time_11.sat",
 		"benchmarks/bb_blocks_reverse_12_time_13.sat",
@@ -90,7 +91,8 @@ public class Test {
 		"benchmarks/bb_cargo_deliver_return_1_time_4.sat",
 		"benchmarks/bb_cargo_deliver_return_2_time_4.sat",
 		"benchmarks/bb_wumpus_easy_wumpus_time_3.sat",
-		"benchmarks/bb_wumpus_medium_wumpus_time_7.sat",
+		"benchmarks/bb_wumpus_medium_wumpus_time_7.sat",*/
+		
 	};
 
 	/**
