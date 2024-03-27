@@ -23,4 +23,4 @@ For example, to compare walksat and brute against cnf_1 and cnf_2 and get the fu
 
 java -jar sat.jar -a solvers/walksat.jar solvers/brute.jar -p benchmarks/cnf_1.sat benchmarks/cnf_2.sat -o test.html
 ----------------------------------------
-
+To test with Test.java: just run it in Eclipse
