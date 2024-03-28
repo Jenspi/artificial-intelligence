@@ -50,7 +50,6 @@ public class SATSolver extends Solver {
 			else {
 				assignment.setValue(loneVar, Value.FALSE);
 			}
-			//assignment.setValue(, Value.TRUE);
 			return assignment.getValue() == Value.TRUE;
 		}
 		// If every clause is true, return true. (edge case)
@@ -69,20 +68,17 @@ public class SATSolver extends Solver {
 		
 		// Main code:
 		else {
-			// CHECK FOR UNIT PROP
+			// SIMPLIFY MODEL USING UNIT PROPAGATION
 			ArrayList<Clause> unit_clauses_list = assignmentToUnitClauses(assignment);
 			Clause currentClause = pickUnitClause(unit_clauses_list);
 			
-			//TODO CHWCK IF UNIT CKAUSE IS NULL
-			
-			if( solveUnitClause(assignment, currentClause) ) {
-				//TODO:
-				return solveUNITCLAUSE()
-				//check again for newly created unit clauses?
-				
+			// Check if there are any unit clauses, and if so, solve.
+			if( !(currentClause == null) ) {
+				// currentClause is null when there are no unit clauses. This code is for when there IS at least one unit clause.
+				return solveUnitClause(assignment, currentClause);
 			}
 			
-			
+			// SIMPLIFY MODEL USING PURE SYMBOL PROPAGATION
 //			// TODO CHECK FOR PURE SYMBOLS (could be before or after unit prop--
 			//different cases but same format as checking for unit clauses except checking for
 			//pure symbols then propagating those
@@ -211,12 +207,12 @@ public class SATSolver extends Solver {
 	
 	// Pick a unit clause from our list that was returned from assignmentToUnitClauses(), part 2/3 of challenge
 	private Clause pickUnitClause(ArrayList<Clause> clausesList) {
-		try {
+		if(!clausesList.isEmpty()) {
 			// To send a unit clause to part three
 			return clausesList.get(0);
 		}
-		catch(Exception e) {
-			System.out.println(e.toString());
+		else {
+			// Empty list; there are no unit clauses at the moment
 			return null;
 		}
 	}
