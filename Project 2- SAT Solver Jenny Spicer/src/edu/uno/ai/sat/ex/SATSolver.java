@@ -171,7 +171,7 @@ public class SATSolver extends Solver {
 	
 	}
 	
-	// Get unknown variable from a unit clause
+	// Get unknown variable from a unit clause; ONLY TO BE USED WITH **UNIT** CLAUSES!
 	private Literal getUnknown(Assignment assignment, Clause unitClause) {
 		// Would like/possibly need checking
 		Literal unknown_literal = null;
@@ -224,16 +224,14 @@ public class SATSolver extends Solver {
 	// Solve unit clause with tryValue(), part 3/3 of challenge
 	private boolean solveUnitClause(Assignment assignment, Clause clause) {
 		Literal unknownLit = getUnknown(assignment, clause);
-		Variable unknownVar = unknownLit.variable;
-		
-		//TODO check valence instead
-		if(tryValue(assignment, unknownVar, Value.TRUE)){
+		if(unknownLit.valence){
+			// Positive valence, so return TRUE to make the model for this clause TRUE
 			return true;
 		}
-		else if(tryValue(assignment, unknownVar, Value.FALSE)) {
-			return true;
+		else{
+			// Negative valence, so return FALSE to make the model for this clause TRUE (!FALSE = TRUE)
+			return false;
 		}
-		return false;
 	}//end solveUnitClause()
 	
 	//###########################################################################//
