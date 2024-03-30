@@ -69,14 +69,16 @@ public class SATSolver extends Solver {
 		// Main code:
 		else {
 			// SIMPLIFY MODEL USING UNIT PROPAGATION
+//			if(unitClause(assignment, assignment.problem.)) {
 			ArrayList<Clause> unit_clauses_list = assignmentToUnitClauses(assignment);
 			Clause currentClause = pickUnitClause(unit_clauses_list);
 			
 			// Check if there are any unit clauses, and if so, solve.
-			if( !(currentClause == null) ) {
+			if( currentClause != null ) {
 				// currentClause is null when there are no unit clauses. This code is for when there IS at least one unit clause.
 				return solveUnitClause(assignment, currentClause);
 			}
+//			}
 			
 			// SIMPLIFY MODEL USING PURE SYMBOL PROPAGATION
 //			// TODO CHECK FOR PURE SYMBOLS (could be before or after unit prop--
@@ -220,13 +222,18 @@ public class SATSolver extends Solver {
 	// Solve unit clause with tryValue(), part 3/3 of challenge
 	private boolean solveUnitClause(Assignment assignment, Clause clause) {
 		Literal unknownLit = getUnknown(assignment, clause);
+		Variable unknownVar = unknownLit.variable;
 		if(unknownLit.valence){
 			// Positive valence, so return TRUE to make the model for this clause TRUE
+			//assignment.setValue(unknownVar, Value.TRUE);
+			tryValue(assignment, unknownVar, Value.TRUE);
 			return true;
 		}
 		else{
 			// Negative valence, so return FALSE to make the model for this clause TRUE (!FALSE = TRUE)
-			return false;
+			//assignment.setValue(unknownVar, Value.FALSE);
+			tryValue(assignment, unknownVar, Value.FALSE);
+			return true;
 		}
 	}//end solveUnitClause()
 	
