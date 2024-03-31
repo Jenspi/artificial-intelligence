@@ -243,8 +243,6 @@ public class SATSolver extends Solver {
 		ArrayList<Literal> positives = new ArrayList<>();
 		ArrayList<Literal> negatives = new ArrayList<>();
 		
-		ArrayList<Literal> pure_symbols = new ArrayList<>();
-		
 		for(Variable variable : assignment.problem.variables){
 //			Variable loneVar = assignment.problem.variables.get(0);
 //			Literal firstLiteral = loneVar.literals.get(0);
@@ -262,8 +260,17 @@ public class SATSolver extends Solver {
 		}//end for loop
 		
 		// Keep elements that both lists have in common
+		//TODO need to keep compliment of intersection (part that is not shared)
+		
+		ArrayList<Literal> impure_symbols = new ArrayList<>();
+		impure_symbols.addAll(positives);
+		impure_symbols.retainAll(negatives);//intersection
+		
+		ArrayList<Literal> pure_symbols = new ArrayList<>();
 		pure_symbols.addAll(positives);
-		pure_symbols.retainAll(negatives);
+		pure_symbols.addAll(negatives);
+		pure_symbols.removeAll(impure_symbols);//remove intersection
+		
 		
 		return pure_symbols;
 	}//end pureSymbols()
