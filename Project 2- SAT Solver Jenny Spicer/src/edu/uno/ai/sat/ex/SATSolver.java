@@ -275,6 +275,11 @@ public class SATSolver extends Solver {
 		return pure_symbols;
 	}//end pureSymbols()
 	
+	private boolean propagateSymbols() {
+		//set all pure symbols to true
+		return true;
+	}
+	
 
 	private boolean tryValue(Assignment a, Variable var, Value val) {
 		// tryValue's mission: Set a variable to a value, and if it doesn't work, undo it; Given through PDF.
