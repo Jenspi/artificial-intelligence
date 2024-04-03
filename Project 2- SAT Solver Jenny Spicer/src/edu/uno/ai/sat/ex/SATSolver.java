@@ -41,6 +41,7 @@ public class SATSolver extends Solver {
 		if(assignment.problem.variables.size() == 0) {
 			return assignment.getValue() == Value.TRUE;
 		}
+		
 		if(assignment.problem.variables.size() == 1) {
 			Variable loneVar = assignment.problem.variables.get(0);
 			Literal firstLiteral = loneVar.literals.get(0);
@@ -52,6 +53,7 @@ public class SATSolver extends Solver {
 			}
 			return assignment.getValue() == Value.TRUE;
 		}
+		
 		// If every clause is true, return true. (edge case)
 		else if( (assignment.countUnknownClauses() == 0) && (assignment.countFalseClauses() == 0) ) {
 			return true;
@@ -83,18 +85,18 @@ public class SATSolver extends Solver {
 			// SIMPLIFY MODEL USING PURE SYMBOL PROPAGATION
 //			// TODO CHECK FOR PURE SYMBOLS (could be before or after unit prop--
 			//different cases but same format as checking for unit clauses except checking for
-			//pure symbols then propagating those
-//			if( !pureSymbols(assignment).isEmpty() ) {
-//				ArrayList<Literal> symbols = pureSymbols(assignment);
-//				for(Literal literal : symbols) {
-//					if(tryValue(assignment, literal.variable, Value.TRUE)) {
-//						return true;
-//					}
-//					else if(tryValue(assignment, literal.variable, Value.FALSE)) {
-//						return true;
-//					}
-//				}
+			//pure symbols then propagating those:
+			
+			//COMMENTED OUT TEMPORARILY
+//			ArrayList<Literal> pure_symbols_list = pureSymbols(assignment);//list of pure symbols
+//			Literal currentPureSymbol = pickPureSymbol(pure_symbols_list);//pick first pure symbol in list
+//			
+//			// Check if there are any unit clauses, and if so, solve.
+//			if( currentPureSymbol != null ) {
+//				// currentClause is null when there are no unit clauses. This code is for when there IS at least one unit clause.
+//				return propagateSymbols(assignment, currentPureSymbol);
 //			}
+			
 			
 			// Add all variables with unknown values from the problem to an ArrayList
 			ArrayList<Variable> unknowns = new ArrayList<>();
@@ -151,6 +153,23 @@ public class SATSolver extends Solver {
 		//set to true and see if it works, else set to false
 		//return assignment.countUnknownLiterals(clause) == 1;
 		
+		/*
+		 * A Unit Clause requires two things:
+		 * 1. Exactly 1 unknown literal,
+		 * and
+		 * 2. Value of clause must be UNKNOWN...
+		 * 
+		 * A clause would be UNKNOWN if A V B V C was T V ? V ?
+		 * A clause would be TRUE if A V B V C was T V T V ? or T V F V ?
+		 * A clause would be FALSE if A V B V C was F V F V F
+		 */
+		
+		// Case 2: Value of clause must be UNKNOWN
+		if( assignment.getValue(clause) != Value.UNKNOWN ) {
+			return false;
+		}
+		
+		// Case 1: Exactly 1 unknown literal
 		int unknowns_count = 0;
 		for(Literal literal : clause.literals) {
 			if(assignment.getValue(literal) == Value.UNKNOWN) {
@@ -226,14 +245,14 @@ public class SATSolver extends Solver {
 		if(unknownLit.valence){
 			// Positive valence, so return TRUE to make the model for this clause TRUE
 			//assignment.setValue(unknownVar, Value.TRUE);
-			tryValue(assignment, unknownVar, Value.TRUE);
-			return true;
+			return tryValue(assignment, unknownVar, Value.TRUE);
+			
 		}
 		else{
 			// Negative valence, so return FALSE to make the model for this clause TRUE (!FALSE = TRUE)
 			//assignment.setValue(unknownVar, Value.FALSE);
-			tryValue(assignment, unknownVar, Value.FALSE);
-			return true;
+			return tryValue(assignment, unknownVar, Value.FALSE);
+			
 		}
 	}//end solveUnitClause()
 	
@@ -260,12 +279,11 @@ public class SATSolver extends Solver {
 		}//end for loop
 		
 		// Keep elements that both lists have in common
-		//TODO need to keep compliment of intersection (part that is not shared)
-		
 		ArrayList<Literal> impure_symbols = new ArrayList<>();
 		impure_symbols.addAll(positives);
 		impure_symbols.retainAll(negatives);//intersection
 		
+		// Now keep all that are NOT in common
 		ArrayList<Literal> pure_symbols = new ArrayList<>();
 		pure_symbols.addAll(positives);
 		pure_symbols.addAll(negatives);
@@ -275,8 +293,46 @@ public class SATSolver extends Solver {
 		return pure_symbols;
 	}//end pureSymbols()
 	
-	private boolean propagateSymbols() {
+	private Literal pickPureSymbol(ArrayList<Literal> pureSymbolsList) {
+		if(!pureSymbolsList.isEmpty()) {
+			return pureSymbolsList.get(0);
+		}
+		else {
+			// Empty list
+			return null;
+		}
+	}
+	
+//	// ONLY USE FOR propagateSymbols()
+//	private Literal getPureSymbol(Assignment assignment, Clause clause) {
+//		Literal pure_symbol = null;
+//		for(Literal literal : clause.literals) {
+//			if(assignment.getValue(literal) == Value.UNKNOWN) {
+//				unknown_literal = literal;
+//			}
+//		}
+//		return unknown_literal;
+//	}
+	
+	//NOT FINISHED
+	private boolean propagateSymbols(Assignment assignment, Literal literal) {
 		//set all pure symbols to true
+		// literal passing in is a pure literal
+		
+		//solve pure symbols
+		
+//		if(unknownLit.valence){
+//			// Positive valence, so return TRUE to make the model for this clause TRUE
+//			//assignment.setValue(unknownVar, Value.TRUE);
+//			tryValue(assignment, unknownVar, Value.TRUE);
+//			return true;
+//		}
+//		else{
+//			// Negative valence, so return FALSE to make the model for this clause TRUE (!FALSE = TRUE)
+//			//assignment.setValue(unknownVar, Value.FALSE);
+//			tryValue(assignment, unknownVar, Value.FALSE);
+//			return true;
+//		}
 		return true;
 	}
 	
