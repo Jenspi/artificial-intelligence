@@ -54,11 +54,11 @@ public class SATSolver extends Solver {
 			return assignment.getValue() == Value.TRUE;
 		}
 		
-		// If every clause is true, return true. (edge case)
+		// If every clause is true, return true. (BASE case)
 		else if( (assignment.countUnknownClauses() == 0) && (assignment.countFalseClauses() == 0) ) {
 			return true;
 		}
-		// If any clause is empty, return false. (edge case)
+		// If any clause is empty, return false. (BASE case)
 //		else if(assignment.countUnknownClauses() > 0) {
 //			return false;
 //		}
@@ -68,7 +68,7 @@ public class SATSolver extends Solver {
 			return false;
 		}
 		
-		// Main code:
+		// Main code where recursive mumbo jumbo continues:
 		else {
 			// SIMPLIFY MODEL USING UNIT PROPAGATION
 //			if(unitClause(assignment, assignment.problem.)) {
@@ -88,14 +88,13 @@ public class SATSolver extends Solver {
 			//pure symbols then propagating those:
 			
 			//COMMENTED OUT TEMPORARILY
-//			ArrayList<Literal> pure_symbols_list = pureSymbols(assignment);//list of pure symbols
-//			Literal currentPureSymbol = pickPureSymbol(pure_symbols_list);//pick first pure symbol in list
-//			
-//			// Check if there are any unit clauses, and if so, solve.
-//			if( currentPureSymbol != null ) {
-//				// currentClause is null when there are no unit clauses. This code is for when there IS at least one unit clause.
-//				return propagateSymbols(assignment, currentPureSymbol);
-//			}
+			ArrayList<Literal> pure_symbols_list = pureSymbols(assignment);//list of pure symbols
+			Literal currentPureSymbol = pickPureSymbol(pure_symbols_list);//pick first pure symbol in list
+			
+			// Check if there are any pure symbols, and if so, solve.
+			if( currentPureSymbol != null ) {
+				return propagateSymbols(assignment, currentPureSymbol);
+			}
 			
 			
 			// Add all variables with unknown values from the problem to an ArrayList
@@ -106,10 +105,9 @@ public class SATSolver extends Solver {
 				}
 			}//end for loop
 			
-			// Keep trying until the assignment is satisfying.
+			
 			int index = 0;
-			//while(assignment.getValue() != Value.TRUE) {
-			//while(index < unknowns.size()) {
+			
 			// Choose a variable whose value will be set; here, choose an UNASSIGNED variable (V).
 			if(unknowns.size() > 0) {
 				Variable variable = unknowns.get(index);
@@ -188,29 +186,16 @@ public class SATSolver extends Solver {
 	
 	}
 	
-	// Get unknown variable from a unit clause; ONLY TO BE USED WITH **UNIT** CLAUSES!
-	private Literal getUnknown(Assignment assignment, Clause unitClause) {
-		// Would like/possibly need checking
-		Literal unknown_literal = null;
-			for(Literal literal : unitClause.literals) {
-				if(assignment.getValue(literal) == Value.UNKNOWN) {
-					unknown_literal = literal;
-				}
-			}
-			return unknown_literal;
-	}
-	
-	
 	// TIP: with FALSE V variable, we can just do V variable because FALSE doesnt help
 	// remember to check if new unit clauses created from solving current/previous unit clauses
-	
 	/*
 	//challenge:
 	//step 1: take clause, return all unit clauses
 	//step 2: take unit clauses from list (getter) (could be random or in order)
 	//step 3: use step two to solve with tryvalue */
 	
-	//###########################################################################//
+	////###################### DEALING WITH UNIT CLAUSES #################################//
+	
 	// Return all unit clauses from an assignment, part 1/3 of challenge
 	private ArrayList<Clause> assignmentToUnitClauses(Assignment assignment){
 		ArrayList<Clause> unit_clauses = new ArrayList<>();
@@ -238,6 +223,18 @@ public class SATSolver extends Solver {
 		}
 	}
 	
+	// Get unknown variable from a unit clause; ONLY TO BE USED WITH **UNIT** CLAUSES!
+		private Literal getUnknown(Assignment assignment, Clause unitClause) {
+			// Would like/possibly need checking
+			Literal unknown_literal = null;
+				for(Literal literal : unitClause.literals) {
+					if(assignment.getValue(literal) == Value.UNKNOWN) {
+						unknown_literal = literal;
+					}
+				}
+				return unknown_literal;
+		}
+	
 	// Solve unit clause with tryValue(), part 3/3 of challenge
 	private boolean solveUnitClause(Assignment assignment, Clause clause) {
 		Literal unknownLit = getUnknown(assignment, clause);
@@ -256,11 +253,24 @@ public class SATSolver extends Solver {
 		}
 	}//end solveUnitClause()
 	
-	//###########################################################################//
+	//###################### DEALING WITH PURE SYMBOLS #################################//
 	
 	private ArrayList<Literal> pureSymbols(Assignment assignment) {
 		ArrayList<Literal> positives = new ArrayList<>();
 		ArrayList<Literal> negatives = new ArrayList<>();
+		
+		Literal pos = null;
+		Literal neg = null;
+		
+		//TODO:
+		//do this with variables instead of literals
+		//check all that arent in common
+		//only consider unit clause pure symbols-- skip literals from clauses with values, only look at the ones with unknown clause values
+		
+		// Skip variables from clauses that have a value of TRUE/FALSE; because of the {TRUE V A V !B} and {B} and {B V A} thing-- B is technically pure here
+//		System.out.println("Variables :"+variable.toString());
+//		System.out.println("Clause: "+ clause.toString());
+//		System.out.println("Assignment: "+ assignment.toString());
 		
 		for(Variable variable : assignment.problem.variables){
 //			Variable loneVar = assignment.problem.variables.get(0);
@@ -275,6 +285,9 @@ public class SATSolver extends Solver {
 					//negative valence
 					negatives.add(current_literal);
 				}
+				System.out.println("Variables :" + variable.toString());
+				System.out.println("Clauses: " + assignment.problem.clauses.toString());
+				System.out.println("Variables to literals: " + variable.literals);
 			}
 		}//end for loop
 		
@@ -303,39 +316,25 @@ public class SATSolver extends Solver {
 		}
 	}
 	
-//	// ONLY USE FOR propagateSymbols()
-//	private Literal getPureSymbol(Assignment assignment, Clause clause) {
-//		Literal pure_symbol = null;
-//		for(Literal literal : clause.literals) {
-//			if(assignment.getValue(literal) == Value.UNKNOWN) {
-//				unknown_literal = literal;
-//			}
-//		}
-//		return unknown_literal;
-//	}
-	
-	//NOT FINISHED
 	private boolean propagateSymbols(Assignment assignment, Literal literal) {
 		//set all pure symbols to true
 		// literal passing in is a pure literal
 		
 		//solve pure symbols
-		
-//		if(unknownLit.valence){
-//			// Positive valence, so return TRUE to make the model for this clause TRUE
-//			//assignment.setValue(unknownVar, Value.TRUE);
-//			tryValue(assignment, unknownVar, Value.TRUE);
-//			return true;
-//		}
-//		else{
-//			// Negative valence, so return FALSE to make the model for this clause TRUE (!FALSE = TRUE)
-//			//assignment.setValue(unknownVar, Value.FALSE);
-//			tryValue(assignment, unknownVar, Value.FALSE);
-//			return true;
-//		}
-		return true;
+		Variable literal_to_variable = literal.variable;
+		if(literal.valence){
+			// Positive valence, so return TRUE to make the model for this clause TRUE
+			return tryValue(assignment, literal_to_variable, Value.TRUE);
+			
+		}
+		else{
+			// Negative valence, so return FALSE to make the model for this clause TRUE (!FALSE = TRUE)
+			return tryValue(assignment, literal_to_variable, Value.FALSE);
+			
+		}
 	}
 	
+	//###################### TRYVALUE AND CHOOSEVARIABLE METHODS #################################//
 
 	private boolean tryValue(Assignment a, Variable var, Value val) {
 		// tryValue's mission: Set a variable to a value, and if it doesn't work, undo it; Given through PDF.
@@ -354,45 +353,6 @@ public class SATSolver extends Solver {
 			return false;
 		}
 	}// end tryValue()
-	
-	/*
-	 * DPLL pseudocode
-	 * 
-	 * ✓function DPLL-SATISFIABLE?(s) returns true or false
-	 * ✓inputs: s, a sentence in propositional logic
-	 * 
-	 * clauses <- the set of clauses in the CNF representation of s
-	 * symbols <- a list of the proposition symbols in s
-	 * return DPLL(clauses, symbols, {})
-	 * ----------------------------------------
-	 * function DPLL(clauses, symbols, model) returns true or false
-	 * 
-	 * ✓if every clause in clauses is true in model then return true
-	 * ✓if some clause in clauses is false in model then return false
-	 * P, value <- FIND-PURE-SYMBOL(symbols, clauses, model)
-	 * if P is non-null then return DPLL(clauses, symbols - P, model UNION {P=value})
-	 * P, value <- FIND-UNIT-CLAUSE(clauses, model)
-	 * if P is non-null then return DPLL(clauses, symbols - P, model UNION {P=value})
-	 * P <- FIRST(symbols); rest <- REST(symbols)
-	 * return DPLL(clauses, rest, model UNION {P=true}) or DPLL(clauses, rest, model UNION {P=false})
-	 */
-	
-	/*
-	 * WALKSAT pseudocode (checks satisfiability by randomly flipping the values of variables)
-	 * 
-	 * function WALKSAT(clauses, p, max_flips) returns a satisfying model or failure
-	 * inputs: clauses, a set of clauses in propositional logic
-	 * 			p, the probability of choosing to so a "random walk" move, typically around 0.5
-	 * 			max_flips, number of flips allowed before giving up
-	 * 
-	 * model <- a random assignment of true/false to the symbols in clauses
-	 * for i = 1 to max_flips, do
-	 * 		if model satisfies clauses then return model
-	 * 		clause <- a randomly selected clause from clauses that is false in model
-	 * 		with probability p, flip the value in model of a randomly selected symbol from clause
-	 * 		else flip whichever symbol in clause maximizes the number of satisfied clauses
-	 * return failure
-	 */
 	
 	
 	
