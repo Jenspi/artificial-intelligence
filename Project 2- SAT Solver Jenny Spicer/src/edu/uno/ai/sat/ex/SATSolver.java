@@ -34,9 +34,6 @@ public class SATSolver extends Solver {
 	@Override
 	public boolean solve(Assignment assignment) {
 		
-		//Simplify the model using unit propagation.
-	    //Simplify the model using pure symbols.
-		
 		// If the problem has no variables, it is assumed to have the values true or false. (pre-programmed)
 		if(assignment.problem.variables.size() == 0) {
 			return assignment.getValue() == Value.TRUE;
@@ -58,10 +55,6 @@ public class SATSolver extends Solver {
 		else if( (assignment.countUnknownClauses() == 0) && (assignment.countFalseClauses() == 0) ) {
 			return true;
 		}
-		// If any clause is empty, return false. (BASE case)
-//		else if(assignment.countUnknownClauses() > 0) {
-//			return false;
-//		}
 		
 		// Base case for false
 		else if(assignment.getValue() == Value.FALSE) {
@@ -71,7 +64,6 @@ public class SATSolver extends Solver {
 		// Main code where recursive mumbo jumbo continues:
 		else {
 			// SIMPLIFY MODEL USING UNIT PROPAGATION
-//			if(unitClause(assignment, assignment.problem.)) {
 			ArrayList<Clause> unit_clauses_list = assignmentToUnitClauses(assignment);
 			Clause currentClause = pickUnitClause(unit_clauses_list);
 			
@@ -80,22 +72,22 @@ public class SATSolver extends Solver {
 				// currentClause is null when there are no unit clauses. This code is for when there IS at least one unit clause.
 				return solveUnitClause(assignment, currentClause);
 			}
-//			}
+
+			// TODO SIMPLIFY MODEL USING PURE SYMBOL PROPAGATION
+			/* CHECK FOR PURE SYMBOLS (could be before or after unit prop--
+			 * different cases but same format as checking for unit clauses except checking for
+			 * pure symbols then propagating those: */
 			
-			// SIMPLIFY MODEL USING PURE SYMBOL PROPAGATION
-//			// TODO CHECK FOR PURE SYMBOLS (could be before or after unit prop--
-			//different cases but same format as checking for unit clauses except checking for
-			//pure symbols then propagating those:
+			// COMMENTED OUT TEMPORARILY-- This slows my code down dramatically and cuts down cases solved
 			
-			//COMMENTED OUT TEMPORARILY
-			ArrayList<Literal> pure_symbols_list = pureSymbols(assignment);//list of pure symbols
-			Literal currentPureSymbol = pickPureSymbol(pure_symbols_list);//pick first pure symbol in list
+  			ArrayList<Variable> pure_symbols_list = pureSymbols(assignment);//list of pure symbols
+			Variable currentPureSymbol = pickPureSymbol(pure_symbols_list);//pick first pure symbol in list
 			
 			// Check if there are any pure symbols, and if so, solve.
 			if( currentPureSymbol != null ) {
 				return propagateSymbols(assignment, currentPureSymbol);
 			}
-			
+
 			
 			// Add all variables with unknown values from the problem to an ArrayList
 			ArrayList<Variable> unknowns = new ArrayList<>();
@@ -105,55 +97,31 @@ public class SATSolver extends Solver {
 				}
 			}//end for loop
 			
-			
-			int index = 0;
-			
 			// Choose a variable whose value will be set; here, choose an UNASSIGNED variable (V).
+			int index = 0;
 			if(unknowns.size() > 0) {
 				Variable variable = unknowns.get(index);
-				
-				
-				
 				// Set V=T. Try to find a model that satisfies.
+				// tryValue() is used in place of solve()-- tryValue() undoes wrong switches
 				if(tryValue(assignment, variable, Value.TRUE)){
 					return true;
-					//tryValue() is used in place of solve()-- tryValue() undoes wrong switches
-					//index++;
-					
 				}
 				else if(tryValue(assignment, variable, Value.FALSE)) {
-					//index++;
 					return true;
 				}
-//				else {
-//					// Will go into this bracket if setting it to FALSE did NOT work
-//					// Set V=F. Try to find a model that satisfies.
-//					assignment.setValue(variable, Value.UNKNOWN);//cleaning up after ourselves
-//					//index++;
-//				}
 			}
-//			else {
-//				
-//			}
-			//}//end while loop
 			
 			//return true if assignment is satisfied, false if not satisfied.
 			return assignment.getValue() == Value.TRUE;
 
-		}//end (long) else statement
+		}//end (long) else statement that controls the recursion
 	}//end Solve()
 	
-	// Checks if the clause in the assignment is a unit clause
+	// Checks if the clause in the assignment is a unit clause; cuts down on time spent solving case
 	private boolean unitClause(Assignment assignment, Clause clause) {
-		//means clause has exactly one unassigned literal
-		//unit clause is a clause with one unknown literal-- marking it as special; unit prop is recognizing unit clause and setting values; using info from unit clauses to make a decision for model 
-		//cuts down on time
-		//set to true and see if it works, else set to false
-		//return assignment.countUnknownLiterals(clause) == 1;
-		
 		/*
 		 * A Unit Clause requires two things:
-		 * 1. Exactly 1 unknown literal,
+		 * 1. Exactly 1 unknown literal, -- marking it as special; unit prop is recognizing unit clause and setting values; using info from unit clauses to make a decision for model
 		 * and
 		 * 2. Value of clause must be UNKNOWN...
 		 * 
@@ -168,35 +136,15 @@ public class SATSolver extends Solver {
 		}
 		
 		// Case 1: Exactly 1 unknown literal
-		int unknowns_count = 0;
-		for(Literal literal : clause.literals) {
-			if(assignment.getValue(literal) == Value.UNKNOWN) {
-				//NOT SURE IF THIS WORKS-- trying to go through the literals in one clause,
-				//seeing if there is exactly one unknown literal, then setting it to true later.
-				unknowns_count++;
-			}
-		}
-		
-		if(unknowns_count == 1) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return assignment.countUnknownLiterals(clause) == 1;
 	
 	}
 	
-	// TIP: with FALSE V variable, we can just do V variable because FALSE doesnt help
-	// remember to check if new unit clauses created from solving current/previous unit clauses
-	/*
-	//challenge:
-	//step 1: take clause, return all unit clauses
-	//step 2: take unit clauses from list (getter) (could be random or in order)
-	//step 3: use step two to solve with tryvalue */
+	
 	
 	////###################### DEALING WITH UNIT CLAUSES #################################//
 	
-	// Return all unit clauses from an assignment, part 1/3 of challenge
+	// Return all unit clauses from an assignment, part 1/3 of unit clause propagation
 	private ArrayList<Clause> assignmentToUnitClauses(Assignment assignment){
 		ArrayList<Clause> unit_clauses = new ArrayList<>();
 		
@@ -211,7 +159,7 @@ public class SATSolver extends Solver {
 		return unit_clauses;
 	}
 	
-	// Pick a unit clause from our list that was returned from assignmentToUnitClauses(), part 2/3 of challenge
+	// Pick a unit clause from our list that was returned from assignmentToUnitClauses(), part 2/3 of unit clause propagation
 	private Clause pickUnitClause(ArrayList<Clause> clausesList) {
 		if(!clausesList.isEmpty()) {
 			// To send a unit clause to part three
@@ -225,7 +173,7 @@ public class SATSolver extends Solver {
 	
 	// Get unknown variable from a unit clause; ONLY TO BE USED WITH **UNIT** CLAUSES!
 		private Literal getUnknown(Assignment assignment, Clause unitClause) {
-			// Would like/possibly need checking
+			// Would like/possibly need checking to make sure it's not used on a normal clause
 			Literal unknown_literal = null;
 				for(Literal literal : unitClause.literals) {
 					if(assignment.getValue(literal) == Value.UNKNOWN) {
@@ -235,32 +183,34 @@ public class SATSolver extends Solver {
 				return unknown_literal;
 		}
 	
-	// Solve unit clause with tryValue(), part 3/3 of challenge
+	// Solve unit clause with tryValue(), part 3/3 of unit clause propagation
 	private boolean solveUnitClause(Assignment assignment, Clause clause) {
 		Literal unknownLit = getUnknown(assignment, clause);
 		Variable unknownVar = unknownLit.variable;
 		if(unknownLit.valence){
 			// Positive valence, so return TRUE to make the model for this clause TRUE
-			//assignment.setValue(unknownVar, Value.TRUE);
 			return tryValue(assignment, unknownVar, Value.TRUE);
 			
 		}
 		else{
 			// Negative valence, so return FALSE to make the model for this clause TRUE (!FALSE = TRUE)
-			//assignment.setValue(unknownVar, Value.FALSE);
 			return tryValue(assignment, unknownVar, Value.FALSE);
 			
 		}
 	}//end solveUnitClause()
 	
+	
+	
 	//###################### DEALING WITH PURE SYMBOLS #################################//
 	
-	private ArrayList<Literal> pureSymbols(Assignment assignment) {
-		ArrayList<Literal> positives = new ArrayList<>();
-		ArrayList<Literal> negatives = new ArrayList<>();
+	private ArrayList<Variable> pureSymbols(Assignment assignment) {
+//		ArrayList<Literal> positives = new ArrayList<>();
+//		ArrayList<Literal> negatives = new ArrayList<>();
+		ArrayList<Variable> pure_symbols = new ArrayList<>();
 		
-		Literal pos = null;
-		Literal neg = null;
+//		Literal pos = null;
+//		Literal neg = null;
+//		Literal current_literal = null;
 		
 		//TODO:
 		//do this with variables instead of literals
@@ -268,45 +218,50 @@ public class SATSolver extends Solver {
 		//only consider unit clause pure symbols-- skip literals from clauses with values, only look at the ones with unknown clause values
 		
 		// Skip variables from clauses that have a value of TRUE/FALSE; because of the {TRUE V A V !B} and {B} and {B V A} thing-- B is technically pure here
-//		System.out.println("Variables :"+variable.toString());
-//		System.out.println("Clause: "+ clause.toString());
-//		System.out.println("Assignment: "+ assignment.toString());
 		
+		// For loop for going through each variable
 		for(Variable variable : assignment.problem.variables){
 //			Variable loneVar = assignment.problem.variables.get(0);
 //			Literal firstLiteral = loneVar.literals.get(0);
+			Literal pos = null;
+			Literal neg = null;
+			Literal current_literal = null;
+			Literal nullLit = null;
+			
+			// For loop for going through variables list
 			for(int i=0; i<variable.literals.size(); i++) {
-				Literal current_literal = variable.literals.get(i);
-				if(current_literal.valence) {
-					//positive valence
-					positives.add(current_literal);
+				current_literal = variable.literals.get(i);
+				//if( assignment.getValue(current_literal.clause) == Value.UNKNOWN) {
+					
+					if(current_literal.valence) {
+						pos = current_literal;
+					}
+					else {
+						neg = current_literal;
+					}
+					
+					// Debugging:
+	//				System.out.println("\n\nVariables :" + variable.toString());
+	//				System.out.println("Clauses: " + assignment.problem.clauses.toString());
+	//				System.out.println("Variables to literals: " + variable.literals);
 				}
-				else {
-					//negative valence
-					negatives.add(current_literal);
+				
+				if( pos == null || neg == null ) {
+					// there is not a positive and a negative
+					
+					// Debugging:
+	//				System.out.println("pos: "+pos);
+	//				System.out.println("neg: "+ neg);
+	//				System.out.println("Pure symbol detected: "+current_literal);
+					pure_symbols.add(current_literal.variable);
 				}
-				System.out.println("Variables :" + variable.toString());
-				System.out.println("Clauses: " + assignment.problem.clauses.toString());
-				System.out.println("Variables to literals: " + variable.literals);
-			}
+			//}
 		}//end for loop
-		
-		// Keep elements that both lists have in common
-		ArrayList<Literal> impure_symbols = new ArrayList<>();
-		impure_symbols.addAll(positives);
-		impure_symbols.retainAll(negatives);//intersection
-		
-		// Now keep all that are NOT in common
-		ArrayList<Literal> pure_symbols = new ArrayList<>();
-		pure_symbols.addAll(positives);
-		pure_symbols.addAll(negatives);
-		pure_symbols.removeAll(impure_symbols);//remove intersection
-		
-		
+
 		return pure_symbols;
 	}//end pureSymbols()
 	
-	private Literal pickPureSymbol(ArrayList<Literal> pureSymbolsList) {
+	private Variable pickPureSymbol(ArrayList<Variable> pureSymbolsList) {
 		if(!pureSymbolsList.isEmpty()) {
 			return pureSymbolsList.get(0);
 		}
@@ -316,23 +271,24 @@ public class SATSolver extends Solver {
 		}
 	}
 	
-	private boolean propagateSymbols(Assignment assignment, Literal literal) {
-		//set all pure symbols to true
-		// literal passing in is a pure literal
+	private boolean propagateSymbols(Assignment assignment, Variable pure_variable) {
+		// set all pure symbols to true
 		
 		//solve pure symbols
-		Variable literal_to_variable = literal.variable;
-		if(literal.valence){
+		//Variable literal_to_variable = pure_literal.variable;
+		if(pure_variable.literals.get(0).valence){
 			// Positive valence, so return TRUE to make the model for this clause TRUE
-			return tryValue(assignment, literal_to_variable, Value.TRUE);
+			return tryValue(assignment, pure_variable, Value.TRUE);
 			
 		}
 		else{
 			// Negative valence, so return FALSE to make the model for this clause TRUE (!FALSE = TRUE)
-			return tryValue(assignment, literal_to_variable, Value.FALSE);
+			return tryValue(assignment, pure_variable, Value.FALSE);
 			
 		}
 	}
+	
+	
 	
 	//###################### TRYVALUE AND CHOOSEVARIABLE METHODS #################################//
 
@@ -353,7 +309,7 @@ public class SATSolver extends Solver {
 			return false;
 		}
 	}// end tryValue()
-	
+
 	
 	
 	/**
