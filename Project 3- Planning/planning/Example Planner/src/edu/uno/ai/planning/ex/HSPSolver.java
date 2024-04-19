@@ -1,11 +1,16 @@
 package edu.uno.ai.planning.ex;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Queue;
 
 import edu.uno.ai.SearchBudget;
+import edu.uno.ai.logic.Conjunction;
+import edu.uno.ai.logic.Literal;
+import edu.uno.ai.logic.Proposition;
 import edu.uno.ai.planning.Plan;
 import edu.uno.ai.planning.Step;
 import edu.uno.ai.planning.ss.StateSpaceNode;
@@ -35,12 +40,15 @@ public class HSPSolver extends StateSpaceSearch {
 
 	@Override
 	public Plan solve() {
+		int priorityNumber; // priority => f(x) = g(x) steps taken + h(x) steps til goal
+		
 		// Start with only the root node (initial state) in the queue.
 		queue.add(root);
 		// Search until the queue is empty (no more states to consider).
 		while(!queue.isEmpty()) {
 			// Pop a state off the frontier.
 			StateSpaceNode current = queue.poll();
+			priorityNumber = HSPHeuristic(current)+0;
 			// Check if it is a solution.
 			if(problem.isSolution(current.plan))
 				return current.plan;
@@ -57,6 +65,19 @@ public class HSPSolver extends StateSpaceSearch {
 		// If the queue is empty and we never found a solution, the problem
 		// cannot be solved. Return null.
 		return null;
+	}
+	
+	private static List<Literal> getLiterals(Proposition proposition){
+		ArrayList<Literal> list = new ArrayList<>();
+		if(proposition instanceof Literal) {
+			list.add((Literal) proposition);
+		}
+		else {
+			for(Proposition conjunct : ((Conjunction) proposition).arguments) {
+				list.add((Literal) conjunct);
+			}
+		}
+		return list;
 	}
 	
 	/*
