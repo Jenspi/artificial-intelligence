@@ -20,11 +20,11 @@ import edu.uno.ai.planning.pop.PartialOrderPlanner;
 public class Test {
 	
 	private static final Planner<?>[] PLANNERS = new Planner[] {
-		new ExamplePlanner(),
-		new BreadthFirstSearchPlanner(),
-		new PartialOrderPlanner(),
-		new GraphPlan(),
-		new BlackBox(),
+		new HSP(),
+		//new BreadthFirstSearchPlanner(),
+		//new PartialOrderPlanner(),
+		//new GraphPlan(),
+		//new BlackBox(),
 		new HeuristicSearchPlanner()
 	};
 

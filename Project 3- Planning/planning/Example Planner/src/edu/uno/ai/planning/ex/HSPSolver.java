@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 import edu.uno.ai.SearchBudget;
@@ -22,10 +23,11 @@ import edu.uno.ai.planning.ss.StateSpaceSearch;
  * 
  * @author Stephen G. Ware
  */
-public class HSPSolver extends StateSpaceSearch {
+public class HSPSolver extends StateSpaceSearch implements Comparable<StateSpaceNode>{
 
 	/** The queue which will hold the frontier (states not yet visited) */
-	private final Queue<StateSpaceNode> queue = new LinkedList<>();
+	// private final Queue<StateSpaceNode> queue = new LinkedList<>();
+	private final Queue<StateSpaceNode> queue = new PriorityQueue<>();
 	
 	/**
 	 * Constructs a new state space search object.
@@ -40,7 +42,7 @@ public class HSPSolver extends StateSpaceSearch {
 
 	@Override
 	public Plan solve() {
-		int priorityNumber; // priority => f(x) = g(x) steps taken + h(x) steps til goal
+		Double priorityNumber; // priority => f(x) = g(x) steps taken + h(x) steps til goal
 		
 		// Start with only the root node (initial state) in the queue.
 		queue.add(root);
@@ -67,6 +69,9 @@ public class HSPSolver extends StateSpaceSearch {
 		return null;
 	}
 	
+	// in all of the domains and problems for this project,
+	// you will only encounter two kinds of propositions: a literal by itself (i.e., an instance of the Literal class) or
+	// a conjunction of literals (i.e., this proposition *isn’t* an instance of the Literal class, but is instead an instance of the Conjunction class). 
 	private static List<Literal> getLiterals(Proposition proposition){
 		ArrayList<Literal> list = new ArrayList<>();
 		if(proposition instanceof Literal) {
@@ -94,9 +99,10 @@ public class HSPSolver extends StateSpaceSearch {
 	 * Return the cost of the problem’s goal. // the sum of its conjuncts
 	 */
 	
-	public int HSPHeuristic(StateSpaceNode current_state) {
-		HashMap<StateSpaceNode, Integer> statesMap = new HashMap<StateSpaceNode, Integer>();
-		Integer cost = Integer.MAX_VALUE;
+	public Double HSPHeuristic(StateSpaceNode current_state) {
+		HashMap<StateSpaceNode, Double> statesMap = new HashMap<StateSpaceNode, Double>();
+		//ArrayList<Literal> literals = current_state.
+		Double cost = Double.POSITIVE_INFINITY;
 		
 		// Assign all to the HashMap with their values
 		for(Step step : problem.steps) {
@@ -105,13 +111,13 @@ public class HSPSolver extends StateSpaceSearch {
 			
 			if(step.precondition.isTrue(current_state.state)) {
 				// Every literal that is TRUE in the current state has a cost of 0.
-				statesMap.put(current_state, 0);
+				statesMap.put(current_state, 0.0);
 			}
 		}
 		
-		// Return the cost of the problem’s goal (the sum of its conjuncts).
-		int problemCost = 0;
-		for (Entry<StateSpaceNode, Integer> entry : statesMap.entrySet()) {
+		// Return the cost of the problem’s goal (calculate the sum of its conjuncts).
+		Double problemCost = 0.0;
+		for (Entry<StateSpaceNode, Double> entry : statesMap.entrySet()) {
 			problemCost += entry.getValue();
 		}
 		    
